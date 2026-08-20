@@ -1,0 +1,39 @@
+User-agent: *
+Allow: /
+
+# Private user pages
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /recruiter-dashboard
+Disallow: /my-applications
+Disallow: /saved-jobs
+Disallow: /notifications
+Disallow: /chat
+Disallow: /messages
+
+# Admin pages
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /admin-dashboard
+Disallow: /admin-users
+Disallow: /admin-recruiters
+Disallow: /admin-jobs
+Disallow: /admin-applications
+Disallow: /admin-revenue
+Disallow: /admin-ads
+
+# Authentication / password pages
+Disallow: /verify-otp
+Disallow: /reset-password
+
+# API endpoints
+Disallow: /api/
+Disallow: /users/
+Disallow: /applications/
+Disallow: /saved-jobs/
+Disallow: /notifications/
+
+# Sitemap
+Sitemap: https://harihire.com/sitemap.xml

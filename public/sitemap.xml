@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+>
+
+  <!-- Home -->
+  <url>
+    <loc>https://harihire.com/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Software Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/software</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Banking Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/banking</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Government Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/government</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- BPO Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/bpo</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Healthcare Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/healthcare</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Education Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/education</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Finance Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/finance</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Marketing Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/marketing</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- HR Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/hr</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Sales Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/sales</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Core Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/core</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Logistics Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/logistics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Retail Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/retail</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Work From Home -->
+  <url>
+    <loc>https://harihire.com/jobs/work-from-home</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Internships -->
+  <url>
+    <loc>https://harihire.com/jobs/internships</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Fresher Jobs -->
+  <url>
+    <loc>https://harihire.com/jobs/fresher</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
