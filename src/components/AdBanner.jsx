@@ -6,7 +6,7 @@ function AdBanner() {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "http://localhost:8085";
+  const BASE_URL = "https://harihire-production.up.railway.app";
 
   // =====================================================
   // LOAD ACTIVE ADS

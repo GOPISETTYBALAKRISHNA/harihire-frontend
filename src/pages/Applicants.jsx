@@ -140,7 +140,7 @@ function Applicants() {
   application.resume.toLowerCase().endsWith(".pdf") ? (
 
     <a
-      href={`http://localhost:8085/uploads/${application.resume}`}
+      href={`https://harihire-production.up.railway.app/uploads/${application.resume}`}
       target="_blank"
       rel="noreferrer"
     >
@@ -150,7 +150,7 @@ function Applicants() {
   ) : (
 
     <a
-      href={`http://localhost:8085/uploads/${application.resume}`}
+      href={`https://harihire-production.up.railway.app/uploads/${application.resume}`}
       download
     >
       ⬇️ Download Resume

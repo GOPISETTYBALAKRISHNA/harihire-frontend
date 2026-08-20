@@ -14,7 +14,7 @@ function UserProfileView() {
     useEffect(() => {
 
         axios
-        .get(`http://localhost:8085/users/profile/${id}`)
+        .get(`https://harihire-production.up.railway.app/users/profile/${id}`)
         .then((res) => {
 
             setUser(res.data);

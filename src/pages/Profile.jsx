@@ -881,7 +881,7 @@ function Profile() {
               </div>
 
               <a
-                href={`http://localhost:8085/uploads/${user.resume}`}
+                href={`https://harihire-production.up.railway.app/uploads/${user.resume}`}
                 target="_blank"
                 rel="noreferrer"
                 style={styles.viewResumeButton}

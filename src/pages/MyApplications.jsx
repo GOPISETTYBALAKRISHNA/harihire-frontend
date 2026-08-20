@@ -605,7 +605,7 @@ function MyApplications() {
                       {application.offerLetter && (
 
                         <a
-                          href={`http://localhost:8085/offerletters/${application.offerLetter}`}
+                          href={`https://harihire-production.up.railway.app/offerletters/${application.offerLetter}`}
                           target="_blank"
                           rel="noreferrer"
                           style={{
