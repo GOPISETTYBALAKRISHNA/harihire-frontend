@@ -1,16 +1,24 @@
 import axios from "axios";
 
-// Environment Variable undhi ante adhi tiskuntundi, lekapothe Railway URL target chestundi
-const API_URL = import.meta.env.VITE_API_URL || "https://harihire-production.up.railway.app";
+// Railway Absolute Backend URL
+const BASE_URL = "https://harihire-production.up.railway.app";
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    // Force absolute target URL to prevent Vercel domain prepending
+    if (config.url && !config.url.startsWith("http")) {
+      const cleanPath = config.url.startsWith("/") ? config.url : `/${config.url}`;
+      config.url = `${BASE_URL}${cleanPath}`;
+    }
 
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
