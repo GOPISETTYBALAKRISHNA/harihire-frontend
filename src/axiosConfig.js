@@ -4,7 +4,7 @@ import axios from "axios";
 // AXIOS INSTANCE
 // =====================================================
 
-const API_URL = import.meta.env.VITE_API_URL || "https://harihire-production.up.railway.app";
+const API_URL = "https://harihire-production.up.railway.app";
 
 const api = axios.create({
   baseURL: API_URL,
