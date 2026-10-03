@@ -1,165 +1,163 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import AdBanner from "../components/AdBanner";
 import SEO from "../components/SEO";
+import "../styles/Home.css";
 
 function Home() {
   const navigate = useNavigate();
+  const [jobRole, setJobRole] = useState("");
+  const [location, setLocation] = useState("");
+
+  // లాగిన్ అయి ఉంటేనే నిర్దిష్ట పేజీకి పంపే ప్రొటెక్టెడ్ నావిగేషన్
+  const handleProtectedNavigation = (path) => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (!isLoggedIn) {
+      alert("Please Login First");
+      navigate("/login");
+      return;
+    }
+
+    navigate(path);
+  };
+
+  // సెర్చ్ హ్యాండ్లర్
+  const handleSearch = () => {
+    if (jobRole || location) {
+      navigate(`/jobs?role=${encodeURIComponent(jobRole)}&location=${encodeURIComponent(location)}`);
+    } else {
+      navigate("/jobs");
+    }
+  };
 
   return (
     <>
-      {/* =========================
-          SEO
-      ========================= */}
-
       <SEO
         title="HariHire - Find Jobs, Hire Talent & Build Your Career"
-        description="Find the latest IT, Non-IT, Banking, Government and other job opportunities on HariHire. Search jobs, explore career opportunities and apply online."
-        keywords="HariHire, jobs, job portal, latest jobs, IT jobs, software jobs, banking jobs, government jobs, non IT jobs, fresher jobs, job search, recruitment"
+        description="Find the latest IT, Non-IT, Banking, Government and other job opportunities on HariHire."
+        keywords="HariHire, Jobs, Software Jobs, Freshers Jobs, Government Jobs"
       />
 
-      <div
-        style={{
-          textAlign: "center",
-          padding: "30px 20px",
-          minHeight: "100vh",
-          boxSizing: "border-box",
-        }}
-      >
-        {/* =========================
-            TOP ADVERTISEMENT
-        ========================= */}
+      <div className="home-container">
+        <AdBanner />
+
+        {/* HERO SECTION */}
+        <section className="hero-section">
+          <div className="hero-content">
+            <span className="hero-badge">
+              🚀 India's Growing Career Platform
+            </span>
+
+            <h1 className="hero-title">
+              Find Your Dream Job With <span className="brand-highlight">HariHire</span>
+            </h1>
+
+            <p className="hero-description">
+              Explore thousands of IT, Non-IT, Banking, Government, Remote and Fresher opportunities from trusted companies.
+            </p>
+
+            <div className="search-box">
+              <div className="input-group">
+                <span className="input-icon">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Job Role, Skills or Company"
+                  value={jobRole}
+                  onChange={(e) => setJobRole(e.target.value)}
+                />
+              </div>
+
+              <div className="input-group">
+                <span className="input-icon">📍</span>
+                <input
+                  type="text"
+                  placeholder="Location or 'Remote'"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+
+              <button className="search-btn" onClick={handleSearch}>
+                Search Jobs
+              </button>
+            </div>
+
+            <div className="hero-buttons">
+              <button
+                className="btn primary-btn"
+                onClick={() => navigate("/jobs")}
+              >
+                Browse Jobs
+              </button>
+
+              <button
+                className="btn secondary-btn"
+                onClick={() => handleProtectedNavigation("/resume-builder")} 
+              >
+                📄 Resume Builder
+              </button>
+            </div>
+          </div>
+        </section>
 
         <AdBanner />
 
-        {/* =========================
-            Welcome Section
-        ========================= */}
+        {/* STATS SECTION */}
+        <section className="stats-section">
+          <div className="stat-card">
+            <h2>10K+</h2>
+            <p>Jobs Available</p>
+          </div>
 
-        <h1
-          style={{
-            color: "#1976d2",
-            fontSize: "45px",
-            marginTop: "35px",
-            marginBottom: "10px",
-          }}
-        >
-          Welcome to HariHire
-        </h1>
+          <div className="stat-card">
+            <h2>500+</h2>
+            <p>Companies</p>
+          </div>
 
-        <p
-          style={{
-            fontSize: "22px",
-            color: "gray",
-            marginBottom: "0",
-          }}
-        >
-          Find Your Dream Job
-        </p>
+          <div className="stat-card">
+            <h2>5K+</h2>
+            <p>Job Seekers</p>
+          </div>
 
-        {/* =========================
-            Job Search
-        ========================= */}
+          <div className="stat-card">
+            <h2>100%</h2>
+            <p>Free Registration</p>
+          </div>
+        </section>
 
-        <div
-          style={{
-            marginTop: "40px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "10px",
-            flexWrap: "wrap",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="🔍 Job Role"
-            style={{
-              width: "250px",
-              padding: "12px",
-              borderRadius: "8px",
-              border: "1px solid gray",
-              boxSizing: "border-box",
-              fontSize: "15px",
-            }}
-          />
+        {/* FEATURES SECTION */}
+        <section className="features-section">
+          <h2 className="section-title">Why Choose HariHire?</h2>
 
-          <input
-            type="text"
-            placeholder="📍 Location"
-            style={{
-              width: "250px",
-              padding: "12px",
-              borderRadius: "8px",
-              border: "1px solid gray",
-              boxSizing: "border-box",
-              fontSize: "15px",
-            }}
-          />
+          <div className="feature-grid">
+            <div className="feature-card">
+              <div className="feature-icon">💼</div>
+              <h3>Latest Jobs</h3>
+              <p>Daily updated IT, Non-IT, and Fresher job listings tailored for you.</p>
+            </div>
 
-          <button
-            onClick={() => navigate("/jobs")}
-            style={{
-              background: "#1976d2",
-              color: "white",
-              border: "none",
-              padding: "12px 25px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "15px",
-            }}
-          >
-            🔍 Search
-          </button>
-        </div>
+            <div className="feature-card">
+              <div className="feature-icon">📄</div>
+              <h3>Resume Builder</h3>
+              <p>Create modern, recruiter-ready professional resumes in minutes.</p>
+            </div>
 
-        {/* =========================
-            MIDDLE ADVERTISEMENT
-        ========================= */}
+            <div className="feature-card">
+              <div className="feature-icon">🔔</div>
+              <h3>Job Alerts</h3>
+              <p>Get real-time updates and notifications on the latest opportunities.</p>
+            </div>
 
-        <div
-          style={{
-            marginTop: "50px",
-          }}
-        >
-          <AdBanner />
-        </div>
+            <div className="feature-card">
+              <div className="feature-icon">🏢</div>
+              <h3>Top Companies</h3>
+              <p>Apply directly to verified and trusted companies hiring now.</p>
+            </div>
+          </div>
+        </section>
 
-        {/* =========================
-            Find Jobs Button
-        ========================= */}
-
-        <div
-          style={{
-            marginTop: "40px",
-          }}
-        >
-          <button
-            onClick={() => navigate("/jobs")}
-            style={{
-              background: "#1976d2",
-              color: "white",
-              border: "none",
-              padding: "14px 30px",
-              borderRadius: "8px",
-              fontSize: "16px",
-              cursor: "pointer",
-            }}
-          >
-            💼 Browse Jobs
-          </button>
-        </div>
-
-        {/* =========================
-            BOTTOM ADVERTISEMENT
-        ========================= */}
-
-        <div
-          style={{
-            marginTop: "50px",
-          }}
-        >
-          <AdBanner />
-        </div>
+        <AdBanner />
       </div>
     </>
   );

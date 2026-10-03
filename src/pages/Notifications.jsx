@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../axiosConfig";
 import AdBanner from "../components/AdBanner";
-
+import "../styles/Notifications.css";
 function Notifications() {
 
   const user = JSON.parse(
@@ -213,317 +213,158 @@ function Notifications() {
   // =====================================================
   // MAIN UI
   // =====================================================
-
   return (
 
-    <div
-      style={{
-        width: "80%",
-        maxWidth: "900px",
-        margin: "30px auto"
-      }}
-    >
-
-      <h2
-        style={{
-          marginBottom: "25px"
-        }}
-      >
-        🔔 Notifications
-      </h2>
-
-
-      {/* =================================================
-          LOADING
-      ================================================= */}
-
-      {loading && (
-
+    <div className="notifications-page">
+  
+      <div className="notifications-header">
+        <h1>🔔 Notifications</h1>
+  
         <p>
-          Loading notifications...
+          Stay updated with job alerts, application updates,
+          recruiter messages and platform announcements.
         </p>
-
+      </div>
+  
+      {loading && (
+  
+        <div className="loading-box">
+          Loading Notifications...
+        </div>
+  
       )}
-
-
-      {/* =================================================
-          NO NOTIFICATIONS
-      ================================================= */}
-
+  
       {!loading &&
         notifications.length === 0 && (
-
-          <div
-            style={{
-              border: "1px solid #ddd",
-              padding: "30px",
-              borderRadius: "10px",
-              textAlign: "center"
-            }}
-          >
-
-            <h3>
-              No Notifications
-            </h3>
-
-
+  
+          <div className="no-notification-box">
+  
+            <h3>No Notifications</h3>
+  
             <p>
-              You don't have any
-              notifications yet.
+              You don't have any notifications yet.
             </p>
-
+  
           </div>
-
+  
         )}
-
-
-      {/* =================================================
-          NOTIFICATIONS LIST
-      ================================================= */}
-
+  
       {!loading &&
         notifications.length > 0 && (
-
-          <div>
-
-            {notifications.map(
-              (notification) => (
-
-                <div
-                  key={notification.id}
-                  style={{
-                    border:
-                      notification.read
-                        ? "1px solid #ddd"
-                        : "2px solid #1976d2",
-
-                    backgroundColor:
-                      notification.read
-                        ? "#ffffff"
-                        : "#eaf3ff",
-
-                    padding: "18px",
-                    marginBottom: "15px",
-                    borderRadius: "10px",
-
-                    boxShadow:
-                      "0 2px 6px rgba(0,0,0,0.08)"
-                  }}
-                >
-
-                  {/* =================================================
-                      TITLE + NEW
-                  ================================================= */}
-
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent:
-                        "space-between",
-                      alignItems: "center",
-                      gap: "10px"
-                    }}
-                  >
-
-                    <h3
-                      style={{
-                        margin:
-                          "0 0 10px 0"
-                      }}
-                    >
-                      {notification.title ||
-                        "Notification"}
-                    </h3>
-
-
-                    {!notification.read && (
-
-                      <span
-                        style={{
-                          backgroundColor:
-                            "#1976d2",
-                          color: "white",
-                          padding:
-                            "4px 10px",
-                          borderRadius:
-                            "15px",
-                          fontSize: "12px",
-                          fontWeight: "bold"
-                        }}
-                      >
-                        NEW
-                      </span>
-
-                    )}
-
-                  </div>
-
-
-                  {/* =================================================
-                      BROADCAST BADGE
-                  ================================================= */}
-
-                  {notification.targetRole && (
-
-                    <div
-                      style={{
-                        marginBottom: "10px"
-                      }}
-                    >
-
-                      <span
-                        style={{
-                          display:
-                            "inline-block",
-                          backgroundColor:
-                            "#e3f2fd",
-                          color:
-                            "#1565c0",
-                          padding:
-                            "4px 10px",
-                          borderRadius:
-                            "15px",
-                          fontSize: "12px",
-                          fontWeight: "bold"
-                        }}
-                      >
-                        📢{" "}
-                        {notification.targetRole ===
-                        "ALL"
-                          ? "Broadcast"
-                          : "Notification"}
-                      </span>
-
-                    </div>
-
-                  )}
-
-
-                  {/* =================================================
-                      MESSAGE
-                  ================================================= */}
-
-                  <p
-                    style={{
-                      margin: "8px 0",
-                      color: "#333",
-                      fontSize: "15px",
-                      lineHeight: "1.5"
-                    }}
-                  >
-                    {notification.message}
-                  </p>
-
-
-                  {/* =================================================
-                      SENDER
-                  ================================================= */}
-
-                  <p
-                    style={{
-                      margin: "8px 0",
-                      color: "#666",
-                      fontSize: "13px"
-                    }}
-                  >
-
-                    <b>
-                      From:
-                    </b>{" "}
-
-                    {notification.senderRole ||
-                      "ADMIN"}
-
-                  </p>
-
-
-                  {/* =================================================
-                      DATE
-                  ================================================= */}
-
-                  {notification.createdAt && (
-
-                    <p
-                      style={{
-                        margin: "8px 0",
-                        color: "#888",
-                        fontSize: "12px"
-                      }}
-                    >
-
-                      {new Date(
-                        notification.createdAt
-                      ).toLocaleString()}
-
-                    </p>
-
-                  )}
-
-
-                  {/* =================================================
-                      MARK AS READ
-                  ================================================= */}
-
+  
+          <div className="notifications-list">
+  
+            {notifications.map((notification) => (
+  
+              <div
+                key={notification.id}
+                className={
+                  notification.read
+                    ? "notification-card"
+                    : "notification-card unread"
+                }
+              >
+  
+                <div className="notification-top">
+  
+                  <h3>
+                    {notification.title ||
+                      "Notification"}
+                  </h3>
+  
                   {!notification.read && (
-
+  
+                    <span className="new-badge">
+                      NEW
+                    </span>
+  
+                  )}
+  
+                </div>
+  
+                {notification.targetRole && (
+  
+                  <span className="broadcast-badge">
+  
+                    📢{" "}
+  
+                    {notification.targetRole === "ALL"
+                      ? "Broadcast"
+                      : "Notification"}
+  
+                  </span>
+  
+                )}
+  
+                <p className="notification-message">
+                  {notification.message}
+                </p>
+  
+                <div className="notification-footer">
+  
+                  <div>
+  
+                    <p className="notification-sender">
+  
+                      <b>From:</b>{" "}
+  
+                      {notification.senderRole ||
+                        "ADMIN"}
+  
+                    </p>
+  
+                    {notification.createdAt && (
+  
+                      <p className="notification-date">
+  
+                        {new Date(
+                          notification.createdAt
+                        ).toLocaleString()}
+  
+                      </p>
+  
+                    )}
+  
+                  </div>
+  
+                  {!notification.read ? (
+  
                     <button
+                      className="mark-read-btn"
                       onClick={() =>
                         markAsRead(
                           notification.id
                         )
                       }
-                      style={{
-                        backgroundColor:
-                          "#1976d2",
-                        color: "white",
-                        border: "none",
-                        padding: "8px 15px",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        marginTop: "8px"
-                      }}
                     >
                       Mark as Read
                     </button>
-
-                  )}
-
-
-                  {/* =================================================
-                      ALREADY READ
-                  ================================================= */}
-
-                  {notification.read && (
-
-                    <span
-                      style={{
-                        color: "green",
-                        fontSize: "13px"
-                      }}
-                    >
-                      ✔️ Read
+  
+                  ) : (
+  
+                    <span className="read-badge">
+                      ✔ Read
                     </span>
-
+  
                   )}
-
+  
                 </div>
-
-              )
-            )}
-
+  
+              </div>
+  
+            ))}
+  
           </div>
-
+  
         )}
-
-
-      {/* =================================================
-          ADVERTISEMENT
-      ================================================= */}
-
-      <AdBanner />
-
+  
+      <div className="notification-ad">
+        <AdBanner />
+      </div>
+  
     </div>
-
+  
+  
   );
 
 }

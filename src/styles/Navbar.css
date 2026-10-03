@@ -1,0 +1,640 @@
+/* ==========================================================================
+   HARIHIRE FLAGSHIP PRODUCTION NAVBAR STYLESHEET
+   Principal Design System: Precision, Restraint, & Modern Architecture
+   ========================================================================== */
+
+:root {
+  --hh-bg: rgba(255, 255, 255, 0.88);
+  --hh-surface-subtle: #f8fafc;
+  --hh-surface-hover: #f1f5f9;
+  --hh-border: rgba(15, 23, 42, 0.06);
+  --hh-border-card: #e2e8f0;
+  
+  --hh-slate-900: #090d16;
+  --hh-slate-800: #172133;
+  --hh-slate-700: #334155;
+  --hh-slate-600: #475569;
+  --hh-slate-500: #64748b;
+  --hh-slate-400: #94a3b8;
+  
+  --hh-blue-600: #2563eb;
+  --hh-blue-700: #1d4ed8;
+  --hh-blue-light: rgba(37, 99, 235, 0.06);
+  --hh-blue-glow: rgba(37, 99, 235, 0.15);
+  
+  --hh-red-500: #ef4444;
+  --hh-red-subtle: #fef2f2;
+  --hh-red-border: #fee2e2;
+  
+  --hh-shadow-nav: 0 1px 2px rgba(0, 0, 0, 0.02), 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  --hh-shadow-drawer: 0 20px 40px -6px rgba(15, 23, 42, 0.12), 0 8px 16px -4px rgba(15, 23, 42, 0.04);
+  
+  --hh-radius-sm: 6px;
+  --hh-radius-md: 8px;
+  --hh-radius-lg: 12px;
+  --hh-radius-full: 9999px;
+  
+  --hh-spring: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   NAVBAR ROOT SHELL & CONTAINER
+   ========================================================================== */
+
+.hh-shell {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--hh-bg);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border-bottom: 1px solid var(--hh-border);
+  box-shadow: var(--hh-shadow-nav);
+  height: 68px;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hh-bar {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   BRAND LOCKUP (LEFT)
+   ========================================================================== */
+
+.hh-brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.hh-brand-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.hh-brand-logo {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.14);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hh-brand-anchor:hover .hh-brand-logo {
+  transform: scale(1.04);
+}
+
+.hh-brand-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+.hh-logo-title {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.45px;
+  color: var(--hh-slate-900);
+}
+
+.hh-blue-glow {
+  color: var(--hh-blue-600);
+}
+
+.hh-cyan-glow {
+  color: #0284c7;
+}
+
+.hh-brand-subtag {
+  font-size: 8.5px;
+  font-weight: 750;
+  letter-spacing: 1.15px;
+  color: var(--hh-slate-400);
+  margin-top: 2px;
+}
+
+.hh-badge-role {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  margin-top: 2px;
+}
+
+.hh-role-admin {
+  color: #0284c7;
+}
+
+/* ==========================================================================
+   NAVIGATION VIEWPORT & LINKS (CENTER)
+   ========================================================================== */
+
+.hh-viewport {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 20px;
+}
+
+.hh-nav-cluster {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hh-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  color: var(--hh-slate-700);
+  text-decoration: none;
+  font-size: 13.8px;
+  font-weight: 500;
+  letter-spacing: -0.15px;
+  border-radius: var(--hh-radius-md);
+  transition: var(--hh-spring);
+  position: relative;
+  white-space: nowrap;
+}
+
+.hh-item-icon {
+  color: var(--hh-slate-500);
+  transition: color 0.16s ease;
+  flex-shrink: 0;
+}
+
+.hh-item:hover {
+  color: var(--hh-slate-900);
+  background-color: var(--hh-surface-hover);
+}
+
+.hh-item:hover .hh-item-icon {
+  color: var(--hh-blue-600);
+}
+
+/* Active State: Clean Inset Pill */
+.hh-item.active {
+  color: var(--hh-slate-900);
+  background-color: var(--hh-surface-hover);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.hh-item.active .hh-item-icon {
+  color: var(--hh-blue-600);
+}
+
+/* Recruiter Post Job Accent */
+.hh-item-action {
+  color: var(--hh-blue-600);
+  font-weight: 600;
+}
+
+.hh-item-action .hh-item-icon {
+  color: var(--hh-blue-600);
+}
+
+/* ==========================================================================
+   NOTIFICATION BADGE
+   ========================================================================== */
+
+.hh-notification-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hh-notification-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.hh-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--hh-red-500);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: var(--hh-radius-full);
+  min-width: 17px;
+  box-shadow: 0 1px 4px rgba(239, 68, 68, 0.35);
+  animation: hh-pop 0.3s ease-out;
+}
+
+@keyframes hh-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   ACTIONS CLUSTER & BUTTONS (RIGHT)
+   ========================================================================== */
+
+.hh-actions-cluster {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Guest Suite */
+.hh-guest-suite {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hh-btn-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 15px;
+  color: var(--hh-slate-700);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  border-radius: var(--hh-radius-md);
+  transition: var(--hh-spring);
+  white-space: nowrap;
+}
+
+.hh-btn-login:hover {
+  color: var(--hh-slate-900);
+  background-color: var(--hh-surface-hover);
+}
+
+.hh-btn-register {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  background-color: var(--hh-slate-900);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  border-radius: var(--hh-radius-md);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12), 0 1px 2px rgba(15, 23, 42, 0.08);
+  transition: var(--hh-spring);
+  white-space: nowrap;
+}
+
+.hh-btn-register:hover {
+  background-color: var(--hh-slate-800);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.16);
+}
+
+/* User Identity Suite */
+.hh-user-suite {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hh-user-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background-color: var(--hh-surface-subtle);
+  border: 1px solid var(--hh-border-card);
+  padding: 4px 12px 4px 5px;
+  border-radius: var(--hh-radius-full);
+  user-select: none;
+}
+
+.hh-avatar-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--hh-slate-900);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hh-user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.hh-user-name {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--hh-slate-900);
+  max-width: 105px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hh-user-role-text {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--hh-blue-600);
+}
+
+/* Logout Button */
+.hh-btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: transparent;
+  color: var(--hh-slate-500);
+  border: 1px solid var(--hh-border-card);
+  border-radius: var(--hh-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--hh-spring);
+}
+
+.hh-btn-logout:hover {
+  background-color: var(--hh-red-subtle);
+  border-color: var(--hh-red-border);
+  color: var(--hh-red-500);
+  transform: translateY(-0.5px);
+}
+
+/* ==========================================================================
+   MINIMAL MOBILE HAMBURGER TOGGLE
+   ========================================================================== */
+
+.hh-toggle-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid var(--hh-border-card);
+  border-radius: var(--hh-radius-md);
+  cursor: pointer;
+  transition: var(--hh-spring);
+  box-sizing: border-box;
+}
+
+.hh-toggle-btn:hover {
+  background-color: var(--hh-surface-hover);
+}
+
+.hh-toggle-stick {
+  display: block;
+  width: 100%;
+  height: 1.8px;
+  background-color: var(--hh-slate-900);
+  border-radius: 2px;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  transform-origin: center;
+}
+
+.hh-toggle-btn.active .hh-toggle-stick:nth-child(1) {
+  transform: translateY(3.4px) rotate(45deg);
+}
+
+.hh-toggle-btn.active .hh-toggle-stick:nth-child(2) {
+  transform: translateY(-3.4px) rotate(-45deg);
+}
+
+/* ==========================================================================
+   ADMIN OBSIDIAN COMMAND THEME
+   ========================================================================== */
+
+.hh-admin-theme {
+  background: rgba(10, 15, 29, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.hh-logo-admin {
+  background-color: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  box-shadow: none;
+}
+
+.hh-admin-theme .hh-logo-title {
+  color: #ffffff;
+}
+
+.hh-admin-theme .hh-item {
+  color: #94a3b8;
+}
+
+.hh-admin-theme .hh-item:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.hh-admin-theme .hh-item.active {
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+}
+
+.hh-admin-theme .hh-toggle-btn {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.hh-admin-theme .hh-toggle-stick {
+  background-color: #ffffff;
+}
+
+.hh-btn-logout-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--hh-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--hh-spring);
+}
+
+.hh-btn-logout-admin:hover {
+  background-color: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ffffff;
+  transform: translateY(-0.5px);
+}
+
+/* ==========================================================================
+   RESPONSIVENESS (TABLETS & MOBILE)
+   ========================================================================== */
+
+/* Intermediate Tablet adjustments (1120px - 880px) */
+@media (max-width: 1120px) {
+  .hh-bar {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .hh-item {
+    padding: 6px 9px;
+    font-size: 13px;
+    gap: 5px;
+  }
+
+  .hh-logo-title {
+    font-size: 18px;
+  }
+
+  .hh-user-name {
+    max-width: 75px;
+  }
+}
+
+/* Mobile & Small Tablets (<= 880px) */
+@media (max-width: 880px) {
+  .hh-shell {
+    height: 62px;
+  }
+
+  .hh-toggle-btn {
+    display: flex;
+  }
+
+  /* Polished Floating Mobile Drawer */
+  .hh-viewport {
+    position: absolute;
+    top: 62px;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-bottom: 1px solid var(--hh-border-card);
+    box-shadow: var(--hh-shadow-drawer);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px 20px 22px;
+    gap: 16px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, padding 0.25s ease;
+  }
+
+  .hh-viewport.open {
+    max-height: 82vh;
+    overflow-y: auto;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Admin Mobile Viewport */
+  .hh-admin-theme .hh-viewport {
+    background: #0a0f1d;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .hh-nav-cluster {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .hh-item {
+    padding: 11px 14px;
+    font-size: 14.5px;
+    border-radius: var(--hh-radius-md);
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .hh-actions-cluster {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding-top: 14px;
+    border-top: 1px solid var(--hh-border);
+    gap: 10px;
+  }
+
+  .hh-admin-theme .hh-actions-cluster {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .hh-guest-suite {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .hh-btn-login,
+  .hh-btn-register {
+    width: 100%;
+    padding: 11px;
+    font-size: 14.5px;
+    box-sizing: border-box;
+  }
+
+  .hh-user-suite {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .hh-user-card {
+    padding: 8px 12px;
+    border-radius: var(--hh-radius-md);
+  }
+
+  .hh-user-name {
+    max-width: none;
+  }
+
+  .hh-btn-logout,
+  .hh-btn-logout-admin {
+    width: 100%;
+    justify-content: center;
+    padding: 11px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+}

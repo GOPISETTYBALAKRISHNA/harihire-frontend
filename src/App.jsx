@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Help from "./pages/Help";
 
 import VideoAdManager from "./components/VideoAdManager";
 import ImageAdManager from "./components/ImageAdManager";
@@ -33,9 +34,14 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import SavedJobs from "./pages/SavedJobs";
 import MyApplications from "./pages/MyApplications";
+import ResumeBuilder from "./pages/ResumeBuilder";
+import ProfessionalResume from "./pages/ProfessionalResume";
+import SimpleResume from "./pages/SimpleResume";
+import ResumePreview from "./pages/ResumePreview";
 
 import Notifications from "./pages/Notifications";
 import RecruiterNotifications from "./pages/RecruiterNotifications";
+import AdminCompanies from "./pages/AdminCompanies";
 
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
@@ -45,6 +51,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
 import PageReviews from "./pages/PageReviews";
+import NotFound from "./pages/NotFound";
 
 // =====================================================
 // JOB CATEGORY PAGES
@@ -69,6 +76,7 @@ import AdminRevenue from "./pages/AdminRevenue";
 import AdminAds from "./pages/AdminAds";
 import AdminNotifications from "./pages/AdminNotifications";
 import AdminReviews from "./pages/AdminReviews";
+import Companies from "./pages/Companies";
 
 // =====================================================
 // RECRUITER PAGES
@@ -193,6 +201,10 @@ function AppContent() {
           path="/"
           element={<Home />}
         />
+        <Route
+          path="/help"
+          element={<Help />}
+        />
 
         <Route
           path="/register"
@@ -219,6 +231,14 @@ function AppContent() {
           path="/jobs"
           element={<Jobs />}
         />
+        <Route
+  path="/companies"
+  element={<Companies />}
+/>
+<Route
+  path="/jobs/company/:companyId"
+  element={<Jobs />}
+/>
 
         {/* =================================================
             ALL JOB CATEGORY PAGES
@@ -237,7 +257,10 @@ function AppContent() {
           path="/job/:id"
           element={<JobDetails />}
         />
-
+        <Route 
+        path="*"
+        element={<NotFound/>}
+        />
         {/* =================================================
             JOB SEEKER
         ================================================= */}
@@ -250,6 +273,22 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/resume-builder"
+  element={<ResumeBuilder />}
+/>
+<Route
+  path="/professional-resume"
+  element={<ProfessionalResume />}
+/>
+<Route
+  path="/simple-resume"
+  element={<SimpleResume />}
+/>
+<Route
+  path="/resume-preview"
+  element={<ResumePreview />}
+/>
 
 
         <Route
@@ -387,6 +426,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        
 
         <Route
           path="/recruiter/notifications"
@@ -475,6 +515,14 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/companies"
+          element={
+          <ProtectedRoute>
+          <AdminCompanies />
+          </ProtectedRoute>
+        }
+      />
 
         {/* =================================================
             ADMIN APPLICATIONS

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import api from "../axiosConfig";
 import SEO from "../components/SEO";
+import "../styles/Jobs.css";
 
 function Jobs() {
   const navigate = useNavigate();
@@ -223,58 +224,48 @@ function Jobs() {
   // =====================================================
   // SEARCH JOBS
   // =====================================================
+  const handleSearch = async () => {
 
-  const handleSearch = () => {
-    const search = normalizeText(searchText);
-
-    // =================================================
-    // EMPTY SEARCH
-    // =================================================
-
+    const search = searchText.trim();
+  
     if (!search) {
       setSearchResults([]);
       setSearchPerformed(false);
       return;
     }
-
-    // =================================================
-    // SEARCH ALL IMPORTANT JOB FIELDS
-    // =================================================
-
-    const results = jobs.filter((job) => {
-      if (!job) {
-        return false;
-      }
-
-      // Deleted jobs should never appear
-      if (job.deleted === true) {
-        return false;
-      }
-
-      const searchableText = [
-        job.jobTitle,
-        job.companyName,
-        job.location,
-        job.category,
-        job.subCategory,
-        job.jobCategory,
-        job.description,
-        job.jobType,
-        job.workMode,
-        job.experience,
-        job.qualification,
-        job.recruiterName,
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      return normalizeText(
-        searchableText
-      ).includes(search);
-    });
-
-    setSearchResults(results);
-    setSearchPerformed(true);
+  
+    try {
+  
+      setLoading(true);
+  
+      const response = await api.get(
+        `/jobs/search?keyword=${encodeURIComponent(search)}`
+      );
+  
+      const results = Array.isArray(response.data)
+        ? response.data
+        : [];
+  
+      setSearchResults(results);
+  
+      setSearchPerformed(true);
+  
+    } catch (error) {
+  
+      console.error(
+        "Search Error:",
+        error
+      );
+  
+      setSearchResults([]);
+  
+      setSearchPerformed(true);
+  
+    } finally {
+  
+      setLoading(false);
+  
+    }
   };
 
   // =====================================================
@@ -370,8 +361,7 @@ function Jobs() {
         {/* RESULTS */}
 
         {searchResults.length > 0 && (
-          <div style={styles.resultsGrid}>
-
+          <div className="category-grid">
             {searchResults.map((job) => (
               <div
                 key={job.id}
@@ -518,31 +508,26 @@ function Jobs() {
         keywords="latest jobs, IT jobs, software jobs, banking jobs, government jobs, BPO jobs, healthcare jobs, finance jobs, fresher jobs, HariHire jobs"
       />
 
-      <div style={styles.page}>
-
+<div className="jobs-page">
         {/* =================================================
             HEADER
         ================================================= */}
 
-        <div style={styles.header}>
+<div className="jobs-hero">
 
-          <h1 style={styles.title}>
-            Find Your Dream Job
-          </h1>
+<h1>Find Your Dream Job</h1>
 
-          <p style={styles.subtitle}>
-            Explore jobs by category and find the right
-            opportunity for your career.
-          </p>
+<p>
+  Explore jobs by category and find the right
+  opportunity for your career.
+</p>
 
-        </div>
-
+</div>
         {/* =================================================
             SEARCH
         ================================================= */}
 
-        <div style={styles.searchBox}>
-
+<div className="search-container">
           <input
             type="text"
             value={searchText}
@@ -550,16 +535,17 @@ function Jobs() {
               setSearchText(event.target.value)
             }
             onKeyDown={handleSearchKeyDown}
-            placeholder="Search jobs, skills or companies..."
-            style={styles.searchInput}
-          />
+            placeholder="Search jobs, companies, skills, locations..."
+            className="search-input"
+            />
 
           <button
             type="button"
             onClick={handleSearch}
             disabled={loading}
+            className="search-btn"
             style={{
-              ...styles.searchButton,
+              
               opacity: loading ? 0.6 : 1,
             }}
           >
@@ -599,33 +585,31 @@ function Jobs() {
         ================================================= */}
 
         {!searchPerformed && (
-          <div style={styles.grid}>
+<div className="category-grid">
 
             {categories.map((category) => (
               <div
-                key={category.name}
-                style={styles.card}
-                onClick={() =>
-                  navigate(category.path)
-                }
-              >
+              key={category.name}
+              className="category-card"
+              onClick={() => navigate(category.path)}
+            >
 
-                <div style={styles.icon}>
+                <div className="category-icon">
                   {category.icon}
                 </div>
-
-                <h3 style={styles.cardTitle}>
+            
+<h3 className="category-title">
                   {category.name}
                 </h3>
 
-                <p style={styles.cardDescription}>
+<p className="category-desc">
                   {category.description}
                 </p>
 
-                <button
+                          <button
                   type="button"
-                  style={styles.exploreButton}
-                  onClick={(event) => {
+                  className="explore-btn"
+                   onClick={(event) => {
                     event.stopPropagation();
 
                     navigate(category.path);
@@ -653,8 +637,9 @@ const styles = {
 
   page: {
     minHeight: "100vh",
-    backgroundColor: "#f5f7fb",
-    padding: "35px 5%",
+    background:
+      "linear-gradient(to bottom,#f8fafc,#eef4ff)",
+    padding: "40px 5%",
     boxSizing: "border-box",
   },
 
@@ -665,49 +650,56 @@ const styles = {
 
   title: {
     margin: 0,
-    fontSize: "36px",
-    fontWeight: "700",
-    color: "#1f2937",
+    fontSize: "52px",
+    fontWeight: "800",
+    color: "#0f172a",
+    letterSpacing: "-1px",
   },
 
   subtitle: {
-    marginTop: "10px",
-    color: "#6b7280",
-    fontSize: "17px",
+    marginTop: "15px",
+    color: "#64748b",
+    fontSize: "20px",
+    maxWidth: "700px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    lineHeight: "1.7",
   },
 
   searchBox: {
-    maxWidth: "800px",
-    margin: "0 auto 40px",
+    maxWidth: "950px",
+    margin: "40px auto",
     display: "flex",
-    gap: "10px",
-    backgroundColor: "#ffffff",
-    padding: "10px",
-    borderRadius: "10px",
+    gap: "12px",
+    background: "#ffffff",
+    padding: "14px",
+    borderRadius: "20px",
+    border: "1px solid #e2e8f0",
     boxShadow:
-      "0 3px 12px rgba(0,0,0,0.08)",
+      "0 20px 40px rgba(15,23,42,0.08)",
   },
 
   searchInput: {
     flex: 1,
-    border: "1px solid #ddd",
+    border: "none",
     outline: "none",
-    padding: "13px",
+    padding: "16px",
     fontSize: "16px",
-    borderRadius: "7px",
+    background: "#f8fafc",
+    borderRadius: "12px",
   },
 
   searchButton: {
     border: "none",
-    backgroundColor: "#1976d2",
-    color: "#ffffff",
-    padding: "12px 22px",
-    borderRadius: "7px",
+    background:
+      "linear-gradient(135deg,#2563eb,#1d4ed8)",
+    color: "#fff",
+    padding: "16px 28px",
+    borderRadius: "12px",
     cursor: "pointer",
+    fontWeight: "700",
     fontSize: "15px",
-    fontWeight: "600",
   },
-
   loadingText: {
     textAlign: "center",
     color: "#1976d2",
@@ -729,26 +721,25 @@ const styles = {
   },
 
   card: {
-    backgroundColor: "#ffffff",
-    borderRadius: "14px",
-    padding: "25px",
-    textAlign: "center",
+    background: "#ffffff",
+    borderRadius: "20px",
+    padding: "28px",
+    textAlign: "left",
     cursor: "pointer",
+    border: "1px solid #e5e7eb",
+    transition: "0.3s",
     boxShadow:
-      "0 3px 12px rgba(0,0,0,0.08)",
-    transition: "all 0.25s ease",
-    border: "1px solid #eeeeee",
+      "0 10px 25px rgba(15,23,42,0.05)",
   },
-
   icon: {
-    fontSize: "42px",
-    marginBottom: "12px",
+    fontSize: "50px",
+    marginBottom: "18px",
   },
-
   cardTitle: {
-    margin: "8px 0",
-    fontSize: "20px",
-    color: "#1f2937",
+    marginBottom: "10px",
+    fontSize: "22px",
+    fontWeight: "700",
+    color: "#0f172a",
   },
 
   cardDescription: {
@@ -759,14 +750,14 @@ const styles = {
   },
 
   exploreButton: {
-    marginTop: "12px",
-    backgroundColor: "#1976d2",
+    marginTop: "18px",
+    background: "#2563eb",
     color: "#ffffff",
     border: "none",
-    padding: "9px 16px",
-    borderRadius: "6px",
+    padding: "12px 18px",
+    borderRadius: "10px",
     cursor: "pointer",
-    fontWeight: "600",
+    fontWeight: "700",
   },
 
   // =====================================================
@@ -805,13 +796,13 @@ const styles = {
   },
 
   jobCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "12px",
-    padding: "22px",
+    background: "#ffffff",
+    borderRadius: "18px",
+    padding: "28px",
     cursor: "pointer",
+    border: "1px solid #e2e8f0",
     boxShadow:
-      "0 3px 12px rgba(0,0,0,0.08)",
-    border: "1px solid #eeeeee",
+      "0 10px 30px rgba(15,23,42,0.06)",
   },
 
   jobTop: {
@@ -823,8 +814,9 @@ const styles = {
 
   jobTitle: {
     margin: 0,
-    fontSize: "21px",
-    color: "#1f2937",
+    fontSize: "24px",
+    fontWeight: "700",
+    color: "#0f172a",
   },
 
   company: {
@@ -834,13 +826,12 @@ const styles = {
   },
 
   openStatus: {
-    backgroundColor: "#e8f5e9",
-    color: "#2e7d32",
-    padding: "6px 12px",
-    borderRadius: "20px",
+    background: "#dcfce7",
+    color: "#166534",
+    padding: "8px 14px",
+    borderRadius: "50px",
     fontSize: "13px",
-    fontWeight: "600",
-    whiteSpace: "nowrap",
+    fontWeight: "700",
   },
 
   jobDetails: {
@@ -877,16 +868,16 @@ const styles = {
   },
 
   viewButton: {
-    backgroundColor: "#1976d2",
+    background:
+      "linear-gradient(135deg,#2563eb,#1d4ed8)",
     color: "#ffffff",
     border: "none",
-    padding: "9px 17px",
-    borderRadius: "6px",
+    padding: "12px 18px",
+    borderRadius: "10px",
     cursor: "pointer",
-    fontWeight: "600",
+    fontWeight: "700",
   },
-
-  noResults: {
+    noResults: {
     backgroundColor: "#ffffff",
     padding: "45px 25px",
     textAlign: "center",

@@ -77,28 +77,31 @@ function RecruiterApplications(){
 
 
 
-    const updateStatus = (id,status)=>{
+    const updateStatus = async (id, status) => {
 
-
-        api
-        .put(`/applications/update-status/${id}?status=${status}`)
-        .then(()=>{
-
-
-            alert("Status Updated");
-
-
-            window.location.reload();
-
-
-        })
-        .catch((err)=>{
-
+        try {
+    
+            await api.put(`/applications/status/${id}`, {
+                status: status
+            });
+    
+            alert(`Status updated to ${status}`);
+    
+            setApplications(prev =>
+                prev.map(app =>
+                    app.id === id
+                        ? { ...app, status }
+                        : app
+                )
+            );
+    
+        } catch (err) {
+    
             console.log(err);
-
-        });
-
-
+            alert("Failed to update status");
+    
+        }
+    
     };
 
 
@@ -262,17 +265,27 @@ function RecruiterApplications(){
 
 
                         <td style={td}>
-
-
-                            <b>
-
-                              {app.status}
-
-                            </b>
-
-
-                        </td>
-
+    <span
+        style={{
+            padding: "6px 12px",
+            borderRadius: "20px",
+            color: "white",
+            fontWeight: "bold",
+            background:
+                app.status === "Selected"
+                    ? "green"
+                    : app.status === "Rejected"
+                    ? "red"
+                    : app.status === "Shortlisted"
+                    ? "orange"
+                    : app.status === "Interview Scheduled"
+                    ? "#1976d2"
+                    : "gray"
+        }}
+    >
+        {app.status}
+    </span>
+</td>
 
 
 
@@ -280,58 +293,43 @@ function RecruiterApplications(){
 
                         <td style={td}>
 
+                        <select
+                        value={app.status}
+                        onChange={(e) =>
+                        updateStatus(
+                        app.id,
+                        e.target.value
+                     )
+                     }
+                        style={{
+                        padding: "8px",
+                         borderRadius: "6px"
+                    }}
+                    >
 
-                            <select
+                    <option value="Applied">
+                        Applied
+                    </option>
 
+                    <option value="Shortlisted">
+                        Shortlisted
+                    </option>
 
-                            value={app.status}
+                    <option value="Interview Scheduled">
+                        Interview Scheduled
+                    </option>
 
+                    <option value="Selected">
+                        Selected
+                    </option>
 
-                            onChange={(e)=>
+                    <option value="Rejected">
+                        Rejected
+                    </option>
 
-                                updateStatus(
+                    </select>
 
-                                    app.id,
-
-                                    e.target.value
-
-                                )
-
-                            }
-
-
-                            >
-
-
-                                <option>
-                                    Applied
-                                </option>
-
-
-                                <option>
-                                    Shortlisted
-                                </option>
-
-
-                                <option>
-                                    Interview Scheduled
-                                </option>
-
-
-                                <option>
-                                    Selected
-                                </option>
-
-
-                                <option>
-                                    Rejected
-                                </option>
-
-
-                            </select>
-
-
-                        </td>
+                    </td>
 
 
 

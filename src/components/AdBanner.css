@@ -1,0 +1,136 @@
+.ad-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 25px 0;
+    padding: 0 15px;
+  }
+  
+  .ad-card {
+    width: 100%;
+    max-width: 950px;
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    transition: all 0.3s ease;
+  }
+  
+  .ad-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+  }
+  
+  .ad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+  }
+  
+  .sponsored-badge {
+    background: #f59e0b;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .close-btn {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    color: #777;
+  }
+  
+  .close-btn:hover {
+    color: #000;
+  }
+  
+  .ad-image {
+    width: 100%;
+    display: block;
+    cursor: pointer;
+    max-height: 420px;
+    object-fit: cover;
+  }
+  
+  .ad-content {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .advertiser-name {
+    font-size: 13px;
+    color: #1976d2;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .ad-title {
+    margin: 0;
+    font-size: 24px;
+    color: #222;
+  }
+  
+  .ad-description {
+    margin-top: 10px;
+    color: #666;
+    line-height: 1.6;
+  }
+  
+  .apply-btn {
+    margin-top: 18px;
+    border: none;
+    background: #1976d2;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  
+  .apply-btn:hover {
+    background: #1259a7;
+  }
+  
+  .slider-dots {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    background: #d1d5db;
+    border-radius: 50%;
+  }
+  
+  .active-dot {
+    background: #1976d2;
+  }
+  
+  @media (max-width: 768px) {
+  
+    .ad-title {
+      font-size: 20px;
+    }
+  
+    .ad-description {
+      font-size: 14px;
+    }
+  
+    .apply-btn {
+      width: 100%;
+    }
+  
+    .ad-content {
+      padding: 15px;
+    }
+  }

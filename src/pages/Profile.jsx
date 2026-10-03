@@ -15,10 +15,11 @@ function Profile() {
     address: "",
     city: "",
     state: "",
-    education: "",
-    skills: "",
+    education: "[]",
+    skills: "[]",
     experience: "",
     about: "",
+    profileImage: "",
     resume: "",
   });
 
@@ -33,6 +34,24 @@ function Profile() {
 
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [profileImageFile, setProfileImageFile] =
+  useState(null);
+  const [uploadingProfileImage, setUploadingProfileImage] =
+  useState(false);
+
+const [educations, setEducations] =
+  useState([
+    {
+      degree: "",
+      college: "",
+      year: "",
+    },
+  ]);
+
+const [skills, setSkills] = useState([]);
+
+const [skillInput, setSkillInput] =
+  useState("");
 
   // =====================================================
   // LOGGED IN USER
@@ -67,6 +86,32 @@ function Profile() {
       );
 
       const data = response.data;
+      let parsedEducations = [
+        {
+          degree: "",
+          college: "",
+          year: "",
+        },
+      ];
+      
+      let parsedSkills = [];
+      
+      try {
+        if (data.education) {
+          parsedEducations =
+            JSON.parse(data.education);
+        }
+      } catch {}
+      
+      try {
+        if (data.skills) {
+          parsedSkills =
+            JSON.parse(data.skills);
+        }
+      } catch {}
+      
+      setEducations(parsedEducations);
+      setSkills(parsedSkills);
 
       setUser({
         fullName: data.fullName || "",
@@ -78,7 +123,8 @@ function Profile() {
         education: data.education || "",
         skills: data.skills || "",
         experience: data.experience || "",
-        about: data.about || "",
+        about: data.about || "", 
+        profileImage: data.profileImage ||"",
         resume: data.resume || "",
       });
 
@@ -86,7 +132,7 @@ function Profile() {
 
       console.error("Profile Loading Error:", error);
 
-      if (`error.response?.status === 403`) {
+      if (error.response && error.response.status === 403) {
         setErrorMessage(
           "Session expired. Please login again."
         );
@@ -101,6 +147,56 @@ function Profile() {
       setLoading(false);
 
     }
+  };
+  const addEducation = () => {
+    setEducations([
+      ...educations,
+      {
+        degree: "",
+        college: "",
+        year: "",
+      },
+    ]);
+  };
+  
+  const removeEducation = (index) => {
+    setEducations(
+      educations.filter(
+        (_, i) => i !== index
+      )
+    );
+  };
+  
+  const handleEducationChange = (
+    index,
+    field,
+    value
+  ) => {
+    const updated = [...educations];
+  
+    updated[index][field] = value;
+  
+    setEducations(updated);
+  };
+  const addSkill = () => {
+
+    if (!skillInput.trim()) return;
+  
+    setSkills([
+      ...skills,
+      skillInput.trim(),
+    ]);
+  
+    setSkillInput("");
+  };
+  
+  const removeSkill = (skill) => {
+  
+    setSkills(
+      skills.filter(
+        (s) => s !== skill
+      )
+    );
   };
 
   // =====================================================
@@ -183,9 +279,21 @@ function Profile() {
       setMessage("");
       setErrorMessage("");
 
+
+
+const payload = {
+  ...user,
+  education: JSON.stringify(
+    educations
+  ),
+  skills: JSON.stringify(
+    skills
+  ),
+};
+
       await api.put(
         `/users/profile/${loggedInUser.id}`,
-        user
+        payload
       );
 
       // =================================================
@@ -249,69 +357,180 @@ function Profile() {
 
     }
   };
+  const handleProfileImageChange = (event) => {
 
+    const file = event.target.files[0];  
+    if (!file) {
+      setProfileImageFile(null);
+      return;
+    }
+  
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "image/webp",
+    ];
+  
+    if (!allowedTypes.includes(file.type)) {
+      setErrorMessage(
+        "Please select JPG, PNG or WEBP image."
+      );
+  
+      event.target.value = "";
+      setProfileImageFile(null);
+  
+      return;
+    }
+  
+    const maxSize = 2 * 1024 * 1024;
+  
+    if (file.size > maxSize) {
+      setErrorMessage(
+        "Profile image must be less than 2 MB."
+      );
+  
+      event.target.value = "";
+      setProfileImageFile(null);
+  
+      return;
+    }
+  
+    setProfileImageFile(file);
+    setMessage("");
+    setErrorMessage("");
+  };
+  const uploadProfileImage = async () => {
+
+    if (!loggedInUser || !loggedInUser.id) {
+      setErrorMessage("Please login again.");
+      return;
+    }
+  
+    if (!profileImageFile) {
+      setErrorMessage(
+        "Please select a profile photo first."
+      );
+      return;
+    }
+  
+    const formData = new FormData();
+  
+    formData.append("file", profileImageFile);
+  
+    try {
+  
+      setUploadingProfileImage(true);
+      setMessage("");
+      setErrorMessage("");
+  
+      await api.post(
+        `/users/${loggedInUser.id}/upload-profile-image`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      setMessage(
+        "Profile photo uploaded successfully!"
+      );
+  
+      setProfileImageFile(null);
+  
+      await loadProfile();
+  
+    } catch (error) {
+  
+      console.error(
+        "Profile Image Upload Error:",
+        error
+      );
+  
+      if (`error.response && error.response.status === 403`) {
+        setErrorMessage(
+          "Session expired. Please login again."
+        );
+      } else {
+        setErrorMessage(
+          "Profile photo upload failed. Please try again."
+        );
+      }
+  
+    } finally {
+  
+      setUploadingProfileImage(false);
+  
+    }
+  };
   // =====================================================
   // RESUME FILE SELECT
   // =====================================================
 
-  const handleResumeChange = (event) => {
+  // =====================================================
+// RESUME FILE SELECT
+// =====================================================
 
-    // IMPORTANT:
-    // Actual File object
-    const file = `event.target.files?.[0]`;
+const handleResumeChange = (event) => {
 
-    if (!file) {
+  const file = event.target.files[0];
 
-      setResumeFile(null);
-      return;
+  if (!file) {
+    setResumeFile(null);
+    return;
+  }
 
-    }
+  // =================================================
+  // ALLOWED FILE TYPES
+  // =================================================
 
-    // =================================================
-    // ALLOWED FILE TYPES
-    // =================================================
+  const allowedTypes = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
 
-    const allowedTypes = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
+  if (!allowedTypes.includes(file.type)) {
 
-    if (!allowedTypes.includes(file.type)) {
+    setErrorMessage(
+      "Please select a PDF, DOC or DOCX file."
+    );
 
-      setErrorMessage(
-        "Please select a PDF, DOC or DOCX file."
-      );
+    event.target.value = "";
+    setResumeFile(null);
 
-      event.target.value = "";
-      setResumeFile(null);
+    return;
+  }
 
-      return;
-    }
+  // =================================================
+  // FILE SIZE - 5 MB
+  // =================================================
 
-    // =================================================
-    // FILE SIZE - 5 MB
-    // =================================================
+  const maxSize = 5 * 1024 * 1024;
 
-    const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
 
-    if (file.size > maxSize) {
+    setErrorMessage(
+      "Resume file size must be less than 5 MB."
+    );
 
-      setErrorMessage(
-        "Resume file size must be less than 5 MB."
-      );
+    event.target.value = "";
+    setResumeFile(null);
 
-      event.target.value = "";
-      setResumeFile(null);
+    return;
+  }
 
-      return;
-    }
+  // =================================================
+  // FILE SELECTED SUCCESSFULLY
+  // =================================================
 
-    setResumeFile(file);
+  setResumeFile(file);
 
-    setMessage("");
-    setErrorMessage("");
-  };
+  setMessage("");
+  setErrorMessage("");
+};
 
   // =====================================================
   // UPLOAD RESUME
@@ -571,6 +790,69 @@ function Profile() {
             </div>
 
           </div>
+          <div style={styles.profileImageSection}>
+
+  {user.profileImage ? (
+    <img
+    src={`${api.defaults.baseURL}/users/uploads/${user.profileImage}`}
+      alt="Profile"
+      style={styles.profileImage}
+    />
+  ) : (
+    <div style={styles.profilePlaceholder}>
+      {user.fullName
+        ? user.fullName.charAt(0).toUpperCase()
+        : "U"}
+    </div>
+  )}
+
+  <input
+    id="profile-image-upload"
+    type="file"
+    accept=".jpg,.jpeg,.png,.webp"
+    onChange={handleProfileImageChange}
+    style={styles.fileInput}
+  />
+
+  <label
+    htmlFor="profile-image-upload"
+    style={styles.uploadPhotoButton}
+  >
+    📷 Choose Profile Photo
+  </label>
+
+  {profileImageFile && (
+    <div style={{ marginTop: "12px" }}>
+
+      <p>
+        Selected: {profileImageFile.name}
+      </p>
+
+      <button
+        type="button"
+        onClick={uploadProfileImage}
+        disabled={uploadingProfileImage}
+        style={styles.uploadButton}
+      >
+        {uploadingProfileImage
+          ? "Uploading..."
+          : "Upload Photo"}
+      </button>
+
+    </div>
+  )}
+
+  <small
+    style={{
+      display: "block",
+      marginTop: "8px",
+      color: "#6b7280",
+    }}
+  >
+    JPG, PNG or WEBP • Maximum 2 MB
+  </small>
+
+</div>
 
           <div style={styles.formGrid}>
 
@@ -733,22 +1015,91 @@ function Profile() {
 
             {/* EDUCATION */}
 
-            <div style={styles.field}>
+            <div
+  style={{
+    ...styles.field,
+    gridColumn: "1 / -1",
+  }}
+>
 
-              <label style={styles.label}>
-                Education
-              </label>
+  <label style={styles.label}>
+    Education
+  </label>
 
-              <input
-                type="text"
-                name="education"
-                value={user.education}
-                onChange={handleChange}
-                placeholder="Example: MCA, B.Tech, BCA"
-                style={styles.input}
-              />
+  {educations.map(
+    (education, index) => (
+      <div
+        key={index}
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "1fr 1fr 120px auto",
+          gap: "10px",
+          marginBottom: "10px",
+        }}
+      >
 
-            </div>
+        <input
+          placeholder="Degree"
+          value={education.degree}
+          onChange={(e) =>
+            handleEducationChange(
+              index,
+              "degree",
+              e.target.value
+            )
+          }
+          style={styles.input}
+        />
+
+        <input
+          placeholder="College"
+          value={education.college}
+          onChange={(e) =>
+            handleEducationChange(
+              index,
+              "college",
+              e.target.value
+            )
+          }
+          style={styles.input}
+        />
+
+        <input
+          placeholder="Year"
+          value={education.year}
+          onChange={(e) =>
+            handleEducationChange(
+              index,
+              "year",
+              e.target.value
+            )
+          }
+          style={styles.input}
+        />
+
+        <button
+          type="button"
+          onClick={() =>
+            removeEducation(index)
+          }
+        >
+          ❌
+        </button>
+
+      </div>
+    )
+  )}
+
+  <button
+    type="button"
+    onClick={addEducation}
+    style={styles.addButton}
+  >
+    + Add Education
+  </button>
+
+</div>
 
             {/* EXPERIENCE */}
 
@@ -770,32 +1121,84 @@ function Profile() {
             </div>
 
             {/* SKILLS */}
-
             <div
-              style={{
-                ...styles.field,
-                gridColumn: "1 / -1",
-              }}
-            >
+  style={{
+    ...styles.field,
+    gridColumn: "1 / -1",
+  }}
+>
 
-              <label style={styles.label}>
-                Skills
-              </label>
+  <label style={styles.label}>
+    Skills
+  </label>
 
-              <input
-                type="text"
-                name="skills"
-                value={user.skills}
-                onChange={handleChange}
-                placeholder="Example: Java, Python, SQL, React"
-                style={styles.input}
-              />
+  <div
+    style={{
+      display: "flex",
+      gap: "10px",
+    }}
+  >
 
-              <small style={styles.helperText}>
-                Separate multiple skills using commas.
-              </small>
+    <input
+      value={skillInput}
+      onChange={(e) =>
+        setSkillInput(
+          e.target.value
+        )
+      }
+      placeholder="Add Skill"
+      style={styles.input}
+    />
 
-            </div>
+    <button
+      type="button"
+      onClick={addSkill}
+    >
+      Add
+    </button>
+
+  </div>
+
+  <div
+    style={{
+      marginTop: "15px",
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "10px",
+    }}
+  >
+
+    {skills.map((skill) => (
+      <div
+        key={skill}
+        style={{
+          background: "#1976d2",
+          color: "#fff",
+          padding: "8px 12px",
+          borderRadius: "20px",
+        }}
+      >
+
+        {skill}
+
+        <span
+          onClick={() =>
+            removeSkill(skill)
+          }
+          style={{
+            marginLeft: "10px",
+            cursor: "pointer",
+          }}
+        >
+          ✕
+        </span>
+
+      </div>
+    ))}
+
+  </div>
+
+</div>
 
             {/* ABOUT */}
 
@@ -881,7 +1284,7 @@ function Profile() {
               </div>
 
               <a
-                href={`https://harihire-production.up.railway.app/uploads/${user.resume}`}
+          href={`${api.defaults.baseURL}/users/uploads/${user.resume}`}
                 target="_blank"
                 rel="noreferrer"
                 style={styles.viewResumeButton}
@@ -1021,12 +1424,14 @@ function Profile() {
               cursor: saving
                 ? "not-allowed"
                 : "pointer",
-            }}
+            }
+          }
           >
             {saving
               ? "Saving..."
               : "✓ Save Profile"}
           </button>
+          
 
         </div>
 
@@ -1382,6 +1787,76 @@ const styles = {
     border: "none",
     padding: "12px 24px",
     borderRadius: "7px",
+    fontSize: "14px",
+    fontWeight: "600",
+  },
+  profileImageSection: {
+    textAlign: "center",
+    marginBottom: "25px",
+  },
+  
+  profileImage: {
+    width: "140px",
+    height: "140px",
+    borderRadius: "50%",
+    objectFit: "cover",
+    border: "4px solid #1976d2",
+  },
+  
+  profilePlaceholder: {
+    width: "140px",
+    height: "140px",
+    borderRadius: "50%",
+    backgroundColor: "#1976d2",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "50px",
+    fontWeight: "bold",
+    margin: "0 auto",
+  },
+  
+  uploadPhotoButton: {
+    marginTop: "15px",
+    backgroundColor: "#1976d2",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "8px",
+    cursor: "pointer",
+  },
+  
+  educationCard: {
+    border: "1px solid #e5e7eb",
+    padding: "15px",
+    borderRadius: "10px",
+    marginBottom: "15px",
+    backgroundColor: "#fafafa",
+  },
+  
+  addEducationButton: {
+    backgroundColor: "#16a34a",
+    color: "#fff",
+    border: "none",
+    padding: "10px 15px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "600",
+  },
+  
+  skillTagContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+    marginTop: "10px",
+  },
+  
+  skillTag: {
+    backgroundColor: "#e3f2fd",
+    color: "#1565c0",
+    padding: "8px 14px",
+    borderRadius: "20px",
     fontSize: "14px",
     fontWeight: "600",
   },

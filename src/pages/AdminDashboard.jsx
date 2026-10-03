@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../axiosConfig";
+import "../styles/AdminDashboard.css";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -32,6 +33,15 @@ function AdminDashboard() {
 
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [revenueError, setRevenueError] = useState("");
+  const [analytics, setAnalytics] = useState({
+    approvedJobs: 0,
+    pendingJobs: 0,
+    rejectedJobs: 0,
+    totalRevenue: 0,
+    totalClicks: 0,
+    totalImpressions: 0,
+    ctr: 0,
+  });
 
   // Change password
   const [showPassword, setShowPassword] = useState(false);
@@ -58,6 +68,7 @@ function AdminDashboard() {
 
     loadDashboard();
     loadRevenue();
+    loadAnalytics();
   }, [navigate]);
 
   // =====================================================
@@ -97,6 +108,50 @@ function AdminDashboard() {
       setLoading(false);
     }
   };
+  // loa analytics
+
+  const loadAnalytics = async () => {
+
+    try {
+  
+      const response =
+        await api.get("/admin/analytics");
+  
+      const data =
+        response.data || {};
+  
+      setAnalytics({
+        approvedJobs:
+          Number(data.approvedJobs) || 0,
+  
+        pendingJobs:
+          Number(data.pendingJobs) || 0,
+  
+        rejectedJobs:
+          Number(data.rejectedJobs) || 0,
+  
+        totalRevenue:
+          Number(data.totalRevenue) || 0,
+  
+        totalClicks:
+          Number(data.totalClicks) || 0,
+  
+        totalImpressions:
+          Number(data.totalImpressions) || 0,
+  
+        ctr:
+          Number(data.ctr) || 0,
+      });
+  
+    } catch (error) {
+  
+      console.error(
+        "Analytics Error:",
+        error
+      );
+  
+    }
+  };
 
   // =====================================================
   // LOAD REVENUE
@@ -106,6 +161,9 @@ function AdminDashboard() {
     try {
       setRevenueLoading(true);
       setRevenueError("");
+      
+
+
 
       // -------------------------------------------------
       // MONTHLY REVENUE
@@ -498,20 +556,18 @@ function AdminDashboard() {
   // =====================================================
 
   return (
-    <div style={pageStyle}>
-
+<div className="admin-dashboard">
       {/* =================================================
           HEADER
       ================================================= */}
 
-      <div style={headerStyle}>
-
+<div className="admin-header">
         <div>
-          <h1 style={{ margin: 0 }}>
-            Admin Dashboard
+        <h1 className="admin-title">
+                    Admin Dashboard
           </h1>
 
-          <p style={subText}>
+<p className="admin-subtitle">
             Welcome to HariHire Admin Panel
           </p>
         </div>
@@ -529,8 +585,7 @@ function AdminDashboard() {
           STATISTICS
       ================================================= */}
 
-      <div style={gridStyle}>
-
+<div className="stats-grid">
         <StatCard
           title="Total Job Seekers"
           value={stats.totalUsers}
@@ -572,6 +627,41 @@ function AdminDashboard() {
           value={stats.pendingApplications}
           icon="⏳"
         />
+        <StatCard
+  title="Approved Jobs"
+  value={analytics.approvedJobs}
+  icon="✅"
+/>
+
+<StatCard
+  title="Pending Jobs"
+  value={analytics.pendingJobs}
+  icon="⏳"
+/>
+
+<StatCard
+  title="Rejected Jobs"
+  value={analytics.rejectedJobs}
+  icon="❌"
+/>
+
+<StatCard
+  title="Ad Clicks"
+  value={analytics.totalClicks}
+  icon="🖱️"
+/>
+
+<StatCard
+  title="Ad Impressions"
+  value={analytics.totalImpressions}
+  icon="👁️"
+/>
+
+<StatCard
+  title="CTR %"
+  value={analytics.ctr.toFixed(2)}
+  icon="📈"
+/>
 
       </div>
 
@@ -579,8 +669,7 @@ function AdminDashboard() {
           REVENUE
       ================================================= */}
 
-      <div style={sectionStyle}>
-
+<div className="section-card">
         <div style={sectionHeader}>
 
           <div>
@@ -790,14 +879,12 @@ function AdminDashboard() {
           ADMIN MANAGEMENT
       ================================================= */}
 
-      <div style={{ marginTop: "40px" }}>
-
+<div className="section-card">
         <h2>
           Admin Management
         </h2>
 
-        <div style={managementGrid}>
-
+<div className="management-grid">
           <ManageButton
             text="💼 Manage Jobs"
             color="#1976d2"
@@ -859,6 +946,13 @@ function AdminDashboard() {
               )
             }
           />
+          <ManageButton
+  text="📊 Analytics"
+  color="#1565c0"
+  onClick={() =>
+    navigate("/admin/analytics")
+  }
+/>
 
           <ManageButton
             text="🔐 Change Password"
@@ -1039,18 +1133,16 @@ function StatCard({
   icon,
 }) {
   return (
-    <div style={cardStyle}>
+    <div className="stat-card">
+
       <h3>
         {icon} {title}
       </h3>
 
-      <h1
-        style={{
-          marginBottom: 0,
-        }}
-      >
+      <h1 style={{ marginBottom: 0 }}>
         {Number(value) || 0}
       </h1>
+
     </div>
   );
 }

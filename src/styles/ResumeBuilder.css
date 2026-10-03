@@ -1,0 +1,143 @@
+.resume-page-layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: #f8fafc;
+    min-height: 100vh;
+  }
+  
+  .resume-builder-container {
+    flex: 1;
+  }
+  
+  .resume-hero {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  
+  .resume-hero h1 {
+    font-size: 42px;
+    color: #1e293b;
+    margin-bottom: 15px;
+  }
+  
+  .resume-hero p {
+    color: #64748b;
+    font-size: 18px;
+  }
+  
+  .resume-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .resume-card {
+    width: 360px;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    position: relative;
+  }
+  
+  .resume-card:hover {
+    transform: translateY(-8px);
+  }
+  
+  .resume-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .free {
+    background: #dcfce7;
+    color: #166534;
+  }
+  
+  .premium {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  .resume-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+  }
+  
+  .resume-card li {
+    padding: 6px 0;
+  }
+  
+  .resume-btn {
+    width: 100%;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    background: #2563eb;
+  }
+  
+  .resume-btn:hover {
+    background: #1d4ed8;
+  }
+  
+  .premium-btn {
+    background: #7c3aed;
+  }
+  
+  .premium-btn:hover {
+    background: #6d28d9;
+  }
+  
+  .coming-soon-text {
+    color: #f59e0b;
+    font-weight: 600;
+  }
+  
+  .side-banner {
+    width: 180px;
+  }
+  
+  .banner-box {
+    position: sticky;
+    top: 90px;
+    background: white;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #64748b;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  @media (max-width: 1200px) {
+    .side-banner {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .resume-hero h1 {
+      font-size: 30px;
+    }
+  
+    .resume-card {
+      width: 100%;
+    }
+  }

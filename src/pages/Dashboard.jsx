@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../axiosConfig";
+import "../styles/Dashboard.css";
 
 import AdBanner from "../components/AdBanner";
 import ImageAdManager from "../components/ImageAdManager";
@@ -88,29 +89,18 @@ function Dashboard() {
 
     return (
 
-      <div
-        style={{
-          textAlign: "center",
-          marginTop: "50px",
-        }}
-      >
+      <div className="dashboard-login-gate">
 
         <h2>
           Please Login First
         </h2>
 
         <button
+          type="button"
+          className="dashboard-login-gate-btn"
           onClick={() =>
             navigate("/login")
           }
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#1976d2",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
         >
           Login
         </button>
@@ -122,20 +112,25 @@ function Dashboard() {
   }
 
 
+  const handleQuickNavigate = (path) => {
+    navigate(path);
+  };
+
+  const handleQuickKeyDown = (event, path) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      navigate(path);
+    }
+  };
+
+
   // =====================================================
   // UI
   // =====================================================
 
   return (
 
-    <div
-      style={{
-        padding: "30px",
-        backgroundColor: "#f5f7fa",
-        minHeight: "100vh",
-      }}
-    >
-
+    <div className="dashboard-container">
 
       {/* =================================================
           IMAGE AD
@@ -163,19 +158,41 @@ function Dashboard() {
 
       )}
 
+      <div className="dashboard-shell">
 
       {/* =================================================
           WELCOME
       ================================================= */}
+      <section className="dashboard-hero" aria-label="Welcome">
+        <div className="dashboard-hero-copy">
+          <p className="dashboard-kicker">HariHire workspace</p>
+          <h1>
+            Welcome Back, {user.fullName} 👋
+          </h1>
 
-      <h1>
-        Welcome {user.fullName} 👋
-      </h1>
+          <p className="dashboard-hero-subtitle">
+            Find your dream job with HariHire
+          </p>
+        </div>
 
+        <div className="hero-buttons">
+          <button
+            type="button"
+            className="primary-btn"
+            onClick={() => navigate("/jobs")}
+          >
+            Search Jobs
+          </button>
 
-      <h2>
-        HariHire Dashboard
-      </h2>
+          <button
+            type="button"
+            className="secondary-btn"
+            onClick={() => navigate("/resume-builder")}
+          >
+            Resume Builder
+          </button>
+        </div>
+      </section>
 
 
       {/* =================================================
@@ -186,149 +203,228 @@ function Dashboard() {
           VideoAd ikkada intentionally ledu.
       ================================================= */}
 
-      <AdBanner />
+      <div className="dashboard-ad-slot">
+        <AdBanner />
+      </div>
 
 
       {/* =================================================
           DASHBOARD STATS
       ================================================= */}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(5, minmax(150px, 1fr))",
-          gap: "20px",
-          marginTop: "25px",
-        }}
-      >
-
-        <Card
-          title="💼 Jobs"
-          value={stats.jobs}
-        />
-
-        <Card
-          title="📄 Applied"
-          value={stats.applications}
-        />
-
-        <Card
-          title="✅ Selected"
-          value={stats.selected}
-        />
-
-        <Card
-          title="📅 Interviews"
-          value={stats.interviews}
-        />
-
-        <Card
-          title="❌ Rejected"
-          value={stats.rejected}
-        />
-
-      </div>
-
-
-      {/* =================================================
-          MY PROFILE
-      ================================================= */}
-
-      <div
-        style={{
-          marginTop: "40px",
-          backgroundColor: "#ffffff",
-          borderRadius: "10px",
-          padding: "20px",
-          boxShadow:
-            "0 2px 8px rgba(0,0,0,0.1)",
-        }}
-      >
-
-        <h2>
-          👤 My Profile
-        </h2>
-
-
-        <div
-          style={{
-            marginTop: "20px",
-          }}
-        >
-
-          <p>
-            <b>Name :</b>{" "}
-            {user.fullName}
-          </p>
-
-
-          <p>
-            <b>Email :</b>{" "}
-            {user.email}
-          </p>
-
-
-          <p>
-            <b>Phone :</b>{" "}
-            {user.phone ||
-              "Not Updated"}
-          </p>
-
-
-          <p>
-            <b>Education :</b>{" "}
-            {user.education ||
-              "Not Updated"}
-          </p>
-
-
-          <p>
-            <b>Skills :</b>{" "}
-            {user.skills ||
-              "Not Updated"}
-          </p>
-
-
-          <p>
-            <b>Experience :</b>{" "}
-            {user.experience ||
-              "Fresher"}
-          </p>
-
-
-          <p>
-            <b>City :</b>{" "}
-            {user.city ||
-              "Not Updated"}
-          </p>
-
-
-          {/* =================================================
-              EDIT PROFILE
-          ================================================= */}
-
-          <button
-            onClick={() =>
-              navigate("/profile")
-            }
-            style={{
-              marginTop: "15px",
-              padding: "10px 20px",
-              backgroundColor:
-                "#1976d2",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
-          >
-            Edit Profile
-          </button>
-
+      <section className="dashboard-section" aria-label="Dashboard statistics">
+        <div className="dashboard-section-head">
+          <h2>Overview</h2>
+          <p>Your current job search at a glance</p>
         </div>
 
+        <div className="stats-grid">
+
+          <Card
+            title="💼 Jobs"
+            value={stats.jobs}
+            accent="jobs"
+          />
+
+          <Card
+            title="📄 Applied"
+            value={stats.applications}
+            accent="applied"
+          />
+
+          <Card
+            title="✅ Selected"
+            value={stats.selected}
+            accent="selected"
+          />
+
+          <Card
+            title="📅 Interviews"
+            value={stats.interviews}
+            accent="interviews"
+          />
+
+          <Card
+            title="❌ Rejected"
+            value={stats.rejected}
+            accent="rejected"
+          />
+
+        </div>
+      </section>
+
+      <div className="dashboard-split">
+
+        <section className="quick-actions" aria-label="Quick actions">
+
+          <div className="dashboard-section-head">
+            <h2>⚡ Quick Actions</h2>
+            <p>Jump to the pages you use most</p>
+          </div>
+
+          <div className="quick-grid">
+
+            <div
+              className="quick-card"
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                handleQuickNavigate("/companies")
+              }
+              onKeyDown={(event) =>
+                handleQuickKeyDown(event, "/companies")
+              }
+            >
+              <span className="quick-card-icon" aria-hidden="true">🏢</span>
+              <span className="quick-card-label">Companies</span>
+              <span className="quick-card-hint">Browse hiring companies</span>
+            </div>
+
+
+            <div
+              className="quick-card"
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                handleQuickNavigate("/my-applications")
+              }
+              onKeyDown={(event) =>
+                handleQuickKeyDown(event, "/my-applications")
+              }
+            >
+              <span className="quick-card-icon" aria-hidden="true">📄</span>
+              <span className="quick-card-label">My Applications</span>
+              <span className="quick-card-hint">Track application status</span>
+            </div>
+
+            <div
+              className="quick-card"
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                handleQuickNavigate("/saved-jobs")
+              }
+              onKeyDown={(event) =>
+                handleQuickKeyDown(event, "/saved-jobs")
+              }
+            >
+              <span className="quick-card-icon" aria-hidden="true">❤️</span>
+              <span className="quick-card-label">Saved Jobs</span>
+              <span className="quick-card-hint">Revisit roles you saved</span>
+            </div>
+
+            <div
+              className="quick-card"
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                handleQuickNavigate("/reviews")
+              }
+              onKeyDown={(event) =>
+                handleQuickKeyDown(event, "/reviews")
+              }
+            >
+              <span className="quick-card-icon" aria-hidden="true">⭐</span>
+              <span className="quick-card-label">Reviews</span>
+              <span className="quick-card-hint">Read and share feedback</span>
+            </div>
+          </div>
+
+        </section>
+
+
+        {/* =================================================
+            MY PROFILE
+        ================================================= */}
+
+        <section className="profile-section" aria-label="My profile">
+
+          <div className="dashboard-section-head">
+            <h2>👤 My Profile</h2>
+            <p>Details from your HariHire account</p>
+          </div>
+
+
+          <div className="profile-details">
+
+            <div className="profile-row">
+              <span className="profile-label">Name</span>
+              <span className="profile-value">{user.fullName}</span>
+            </div>
+
+
+            <div className="profile-row">
+              <span className="profile-label">Email</span>
+              <span className="profile-value">{user.email}</span>
+            </div>
+
+
+            <div className="profile-row">
+              <span className="profile-label">Phone</span>
+              <span className="profile-value">
+                {user.phone ||
+                  "Not Updated"}
+              </span>
+            </div>
+
+
+            <div className="profile-row">
+              <span className="profile-label">Education</span>
+              <span className="profile-value">
+                {user.education ||
+                  "Not Updated"}
+              </span>
+            </div>
+
+
+            <div className="profile-row">
+              <span className="profile-label">Skills</span>
+              <span className="profile-value">
+                {user.skills ||
+                  "Not Updated"}
+              </span>
+            </div>
+
+
+            <div className="profile-row">
+              <span className="profile-label">Experience</span>
+              <span className="profile-value">
+                {user.experience ||
+                  "Fresher"}
+              </span>
+            </div>
+
+
+            <div className="profile-row">
+              <span className="profile-label">City</span>
+              <span className="profile-value">
+                {user.city ||
+                  "Not Updated"}
+              </span>
+            </div>
+
+
+            {/* =================================================
+                EDIT PROFILE
+            ================================================= */}
+
+            <button
+              type="button"
+              className="edit-profile-btn"
+              onClick={() =>
+                navigate("/profile")
+              }
+            >
+              Edit Profile
+            </button>
+
+          </div>
+
+        </section>
+
       </div>
+
+
 
 
       {/* =================================================
@@ -337,13 +433,47 @@ function Dashboard() {
           Existing Banner functionality maintained.
       ================================================= */}
 
-      <div
-        style={{
-          marginTop: "30px",
-        }}
-      >
+      <div className="dashboard-bottom">
+      {/* =================================================
+    HELP CENTER
+================================================= */}
 
-        <AdBanner />
+        <section className="dashboard-help-section" aria-label="Help center">
+
+          <div className="help-content">
+
+            <div className="help-text">
+              <p className="dashboard-kicker dashboard-kicker-on-dark">Support</p>
+              <h2>🆘 Need Help?</h2>
+
+              <p>
+                Get support, FAQs, Privacy Policy,
+                Terms & Conditions, Contact Information
+                and more from HariHire Help Center.
+              </p>
+
+              <button
+                type="button"
+                className="help-btn"
+                onClick={() => navigate("/help")}
+              >
+                Open Help Center
+              </button>
+            </div>
+
+            <div className="help-icon" aria-hidden="true">
+              💡
+            </div>
+
+          </div>
+
+        </section>
+
+        <div className="dashboard-ad-slot">
+          <AdBanner />
+        </div>
+
+      </div>
 
       </div>
 
@@ -360,43 +490,20 @@ function Dashboard() {
 function Card({
   title,
   value,
+  accent,
 }) {
 
   return (
 
-    <div
-      style={{
-        backgroundColor: "#ffffff",
-        padding: "20px",
-        borderRadius: "12px",
-        textAlign: "center",
-        boxShadow:
-          "0 2px 8px rgba(0,0,0,0.15)",
-        border:
-          "1px solid #e0e0e0",
-        transition: "0.3s",
-      }}
-    >
-
-      <h3
-        style={{
-          marginBottom: "10px",
-          color: "#555",
-        }}
-      >
+    <div className={`dashboard-card dashboard-card-${accent || "default"}`}>
+      <h3>
         {title}
       </h3>
 
 
-      <h1
-        style={{
-          color: "#1976d2",
-          fontSize: "32px",
-          margin: "0",
-        }}
-      >
+      <p className="dashboard-card-value">
         {value}
-      </h1>
+      </p>
 
     </div>
 

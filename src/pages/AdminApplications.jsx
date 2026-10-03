@@ -116,6 +116,27 @@ function AdminApplications() {
     }
 
   };
+  const updateStatus = async (id, status) => {
+
+    try {
+  
+      await api.put(`/applications/status/${id}`, {
+        status: status
+      });
+  
+      alert(`Status updated to ${status}`);
+  
+      loadApplications();
+  
+    } catch (error) {
+  
+      console.error(error);
+  
+      alert("Failed to update status");
+  
+    }
+  
+  };
 
   const filteredApplications =
     applications.filter((application) => {
@@ -335,10 +356,13 @@ function AdminApplications() {
               <th style={thStyle}>
                 Status
               </th>
+              <th style={thStyle}>Update Status</th>
+
 
               <th style={thStyle}>
                 Actions
               </th>
+
 
             </tr>
 
@@ -351,7 +375,7 @@ function AdminApplications() {
               <tr>
 
                 <td
-                  colSpan="6"
+                  colSpan="7"
                   style={{
                     padding: "30px",
                     textAlign: "center"
@@ -389,6 +413,8 @@ function AdminApplications() {
                       {application.companyName ||
                         "N/A"}
                     </td>
+                  
+                    
 
                     <td style={tdStyle}>
 
@@ -407,24 +433,53 @@ function AdminApplications() {
 
                         <span
                           style={{
-                            fontWeight: "bold",
-                            color:
-                              application.status ===
-                              "SELECTED"
-                                ? "green"
-                                : application.status ===
-                                  "REJECTED"
-                                ? "red"
-                                : "orange"
-                          }}
-                        >
-                          {application.status ||
-                            "APPLIED"}
-                        </span>
+                          padding: "6px 12px",
+                          borderRadius: "20px",
+                          color: "white",
+                          fontWeight: "bold",
+                          background:
+                          application.status === "Selected"
+                          ? "green"
+                          : application.status === "Rejected"
+                          ? "red"
+                          : application.status === "Shortlisted"
+                          ? "orange"
+                          : application.status === "Interview Scheduled"
+                          ? "#1976d2"
+                          : "gray"
+                        }}
+                      >
+                        {application.status || "Applied"}
+                  </span>
 
                       )}
 
                     </td>
+                    <td style={tdStyle}>
+
+  <select
+    value={application.status || "Applied"}
+    onChange={(e) =>
+      updateStatus(
+        application.id,
+        e.target.value
+      )
+    }
+    style={{
+      padding: "8px",
+      borderRadius: "6px"
+    }}
+  >
+    <option value="Applied">Applied</option>
+    <option value="Shortlisted">Shortlisted</option>
+    <option value="Interview Scheduled">
+      Interview Scheduled
+    </option>
+    <option value="Selected">Selected</option>
+    <option value="Rejected">Rejected</option>
+  </select>
+
+      </td>
 
                     <td style={tdStyle}>
 

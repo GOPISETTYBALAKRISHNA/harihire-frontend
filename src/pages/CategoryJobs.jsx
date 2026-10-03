@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../axiosConfig";
-
+import "../styles/CategoryJobs.css";
 function CategoryJobs() {
   const navigate = useNavigate();
   const { category } = useParams();
@@ -15,7 +15,9 @@ function CategoryJobs() {
   const [loading, setLoading] = useState(true);
   const [savingJobId, setSavingJobId] = useState(null);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
+const jobsPerPage = 50;
   // =====================================================
   // GET USER
   // =====================================================
@@ -451,8 +453,7 @@ function CategoryJobs() {
       setError("");
 
       const response =
-        await api.get("/jobs");
-
+      await api.get(`/jobs/category/${category}`);
       const allJobs =
         Array.isArray(response.data)
           ? response.data
@@ -482,8 +483,9 @@ function CategoryJobs() {
 
       setJobs(categoryJobs);
       setFilteredJobs(categoryJobs);
+      setCurrentPage(1);
 
-      await loadSavedStatus(categoryJobs);
+     // await loadSavedStatus(categoryJobs);
 
     } catch (error) {
       console.error(
@@ -829,6 +831,20 @@ function CategoryJobs() {
     category,
     filteredJobs,
   ]);
+  const indexOfLastJob = currentPage * jobsPerPage;
+
+const indexOfFirstJob =
+  indexOfLastJob - jobsPerPage;
+
+const currentJobs =
+  filteredJobs.slice(
+    indexOfFirstJob,
+    indexOfLastJob
+  );
+
+const totalPages = Math.ceil(
+  filteredJobs.length / jobsPerPage
+);
 
   // =====================================================
   // CATEGORY
@@ -890,18 +906,17 @@ function CategoryJobs() {
           SEO CONTENT
       ================================================= */}
 
-      <section style={styles.seoIntro}>
+      <div className="category-hero">
 
-        <h1 style={styles.title}>
-          {displayCategory} Jobs
-        </h1>
+<h1>
+  {displayCategory} Jobs
+</h1>
 
-        <p style={styles.subtitle}>
-          {seo.description}
-        </p>
+<p>
+  {seo.description}
+</p>
 
-      </section>
-
+</div>
       {/* =================================================
           HEADER
       ================================================= */}
@@ -1035,8 +1050,7 @@ function CategoryJobs() {
 
       <div style={styles.container}>
 
-        {filteredJobs.map((job) => {
-
+{currentJobs.map((job) => {
           const isSaved =
             savedJobs.includes(
               job.id
@@ -1093,6 +1107,7 @@ function CategoryJobs() {
                   </h4>
 
                 </div>
+
 
                 <span
                   style={{
@@ -1273,6 +1288,36 @@ function CategoryJobs() {
         })}
 
       </div>
+      {totalPages > 1 && (
+  <div style={styles.pagination}>
+
+    {Array.from(
+      { length: totalPages },
+      (_, index) => (
+        <button
+          key={index}
+          onClick={() =>
+            setCurrentPage(index + 1)
+          }
+          style={{
+            ...styles.pageButton,
+            backgroundColor:
+              currentPage === index + 1
+                ? "#2563eb"
+                : "#ffffff",
+            color:
+              currentPage === index + 1
+                ? "#ffffff"
+                : "#2563eb",
+          }}
+        >
+          {index + 1}
+        </button>
+      )
+    )}
+
+  </div>
+)}
 
       {/* =================================================
           SEO FOOTER CONTENT
@@ -1586,6 +1631,22 @@ const styles = {
     borderRadius: "6px",
     cursor: "pointer",
   },
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    marginTop: "30px",
+    flexWrap: "wrap",
+  },
+  
+  pageButton: {
+    padding: "10px 15px",
+    border: "1px solid #2563eb",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "600",
+  },
 };
+
 
 export default CategoryJobs;

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../axiosConfig";
-
+import "../styles/Login.css";
+import { Link } from "react-router-dom";
 function Login({
   setIsLoggedIn,
   setIsAdminLoggedIn
@@ -425,174 +426,93 @@ function Login({
 
   // =====================================================
   // UI
-  // =====================================================
+  // ============================================
 
-  return (
-
-    <div
-      style={{
-        minHeight: "80vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "30px",
-        boxSizing: "border-box",
-        backgroundColor: "#f5f7fa"
-      }}
-    >
-
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "400px",
-          backgroundColor: "#ffffff",
-          padding: "30px",
-          borderRadius: "12px",
-          boxShadow:
-            "0 4px 20px rgba(0,0,0,0.10)",
-          boxSizing: "border-box"
-        }}
-      >
-
-        <h2
-          style={{
-            textAlign: "center",
-            marginBottom: "25px"
-          }}
-        >
-          Login
-        </h2>
-
-
-        <form onSubmit={handleLogin}>
-
-          {/* EMAIL */}
-
-          <label
-            style={{
-              display: "block",
-              marginBottom: "7px",
-              fontWeight: "600"
-            }}
-          >
-            Email
-          </label>
-
-
-          <input
-            type="email"
-            placeholder="Enter Email"
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-            required
-            disabled={loading}
-            autoComplete="email"
-            style={{
-              width: "100%",
-              padding: "12px",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              boxSizing: "border-box",
-              fontSize: "15px"
-            }}
-          />
-
-
-          {/* PASSWORD */}
-
-          <label
-            style={{
-              display: "block",
-              marginTop: "18px",
-              marginBottom: "7px",
-              fontWeight: "600"
-            }}
-          >
-            Password
-          </label>
-
-
-          <input
-            type="password"
-            placeholder="Enter Password"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-            required
-            disabled={loading}
-            autoComplete="current-password"
-            style={{
-              width: "100%",
-              padding: "12px",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              boxSizing: "border-box",
-              fontSize: "15px"
-            }}
-          />
-
-
-          {/* LOGIN BUTTON */}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              marginTop: "22px",
-              padding: "12px",
-              backgroundColor:
-                loading
-                  ? "#90caf9"
-                  : "#1976d2",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor:
-                loading
-                  ? "not-allowed"
-                  : "pointer",
-              fontSize: "16px",
-              fontWeight: "600"
-            }}
-          >
-            {loading
-              ? "Logging in..."
-              : "Login"}
-          </button>
-
-
-          {/* FORGOT PASSWORD */}
-
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/forgot-password")
-            }
-            disabled={loading}
-            style={{
-              display: "block",
-              margin: "16px auto 0",
-              background: "none",
-              border: "none",
-              color: "#1976d2",
-              cursor: "pointer",
-              fontSize: "14px",
-              textDecoration: "underline"
-            }}
-          >
-            Forgot Password?
-          </button>
-
-        </form>
-
+    return (
+      <div className="login-container">
+    
+        <div className="login-card">
+    
+          <h2 className="login-title">
+            HariHire
+          </h2>
+    
+          <p className="login-subtitle">
+            Welcome Back! Login to continue
+          </p>
+    
+          <form onSubmit={handleLogin}>
+    
+            <label className="login-label">
+              Email
+            </label>
+    
+            <input
+              type="email"
+              placeholder="Enter Email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              required
+              disabled={loading}
+              autoComplete="email"
+              className="login-input"
+            />
+    
+            <label
+              className="login-label"
+              style={{ marginTop: "10px" }}
+            >
+              Password
+            </label>
+    
+            <input
+              type="password"
+              placeholder="Enter Password"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              required
+              disabled={loading}
+              autoComplete="current-password"
+              className="login-input"
+            />
+    
+            <button
+              type="submit"
+              disabled={loading}
+              className="login-btn"
+            >
+              {loading
+                ? "Logging in..."
+                : "Login"}
+            </button>
+    
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/forgot-password")
+              }
+              disabled={loading}
+              className="forgot-btn"
+            >
+              Forgot Password?
+            </button>
+    
+            <div className="register-link">
+              Don't have an account?{" "}
+              <Link to="/register">
+                Register
+              </Link>
+            </div>
+    
+          </form>
+    
+        </div>
+    
       </div>
-
-    </div>
-  );
-}
+    );}
 
 export default Login;

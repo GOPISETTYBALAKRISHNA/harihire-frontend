@@ -1,61 +1,131 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../axiosConfig";
+import "./AdBanner.css";
 
 function AdBanner() {
-
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const BASE_URL = "https://harihire-production.up.railway.app";
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [closed, setClosed] = useState(false);
 
   // =====================================================
-  // LOAD ACTIVE ADS
+  // LOAD ACTIVE BANNER ADS
   // =====================================================
 
   useEffect(() => {
-
     loadAds();
-
   }, []);
 
-
   const loadAds = async () => {
-
     try {
+      const response = await api.get("/ads/active/banner");
 
-      const response = await axios.get(
-        `${BASE_URL}/ads/active`
-      );
-
-      const activeAds =
-        Array.isArray(response.data)
-          ? response.data
-          : [];
-
-      // ONLY BANNER ADS
-      const bannerAds =
-        activeAds.filter(
-          (ad) =>
-            !ad.adType ||
-            ad.adType.toUpperCase() === "BANNER"
-        );
+      const bannerAds = Array.isArray(response.data)
+        ? response.data
+        : [];
 
       setAds(bannerAds);
-
+      setCurrentIndex(0);
     } catch (error) {
-
-      console.log(
-        "Banner Ad Load Error:",
-        error
-      );
-
+      console.error("Banner Ad Load Error:", error);
+      setAds([]);
     } finally {
-
       setLoading(false);
-
     }
   };
 
+  // =====================================================
+  // AUTO SLIDE
+  // =====================================================
+
+  useEffect(() => {
+    if (ads.length <= 1 || closed) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentIndex((previousIndex) => {
+        return (previousIndex + 1) % ads.length;
+      });
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [ads, closed]);
+
+  // =====================================================
+  // IMPRESSION TRACKING
+  // =====================================================
+
+  useEffect(() => {
+    if (ads.length === 0 || closed) {
+      return;
+    }
+
+    const ad = ads[currentIndex];
+
+    if (!ad || !ad.id) {
+      return;
+    }
+
+    api
+      .put(`/ads/${ad.id}/impression`)
+      .catch((error) => {
+        console.error(
+          "Impression tracking error:",
+          error
+        );
+      });
+  }, [ads, currentIndex, closed]);
+
+  // =====================================================
+  // CLICK HANDLER
+  // =====================================================
+
+  const handleClick = async (ad) => {
+    if (!ad) {
+      return;
+    }
+
+    try {
+      await api.put(`/ads/${ad.id}/click`);
+    } catch (error) {
+      console.error(
+        "Click tracking error:",
+        error
+      );
+    }
+
+    // Open advertiser website only when target URL exists
+    if (
+      ad.targetUrl &&
+      ad.targetUrl.trim() !== ""
+    ) {
+      window.open(
+        ad.targetUrl.trim(),
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
+  };
+
+  // =====================================================
+  // CLOSE BANNER
+  // =====================================================
+
+  const handleClose = (event) => {
+    /*
+     * IMPORTANT:
+     * Prevent default browser/form behaviour.
+     * Do NOT use window.history.back().
+     * Do NOT navigate anywhere.
+     */
+    event.preventDefault();
+    event.stopPropagation();
+
+    setClosed(true);
+  };
 
   // =====================================================
   // LOADING
@@ -65,219 +135,162 @@ function AdBanner() {
     return null;
   }
 
-
   // =====================================================
-  // NO BANNER ADS
+  // NO ADS / CLOSED
   // =====================================================
 
-  if (ads.length === 0) {
+  if (ads.length === 0 || closed) {
     return null;
   }
 
+  // =====================================================
+  // CURRENT AD
+  // =====================================================
+
+  const ad = ads[currentIndex];
+
+  if (!ad) {
+    return null;
+  }
 
   // =====================================================
-  // BANNER ADS
+  // UI
   // =====================================================
 
   return (
-
     <div
-      style={{
-        width: "100%",
-        marginTop: "25px",
-        marginBottom: "25px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "20px"
+      className="ad-wrapper"
+      onClick={(event) => {
+        /*
+         * Keep clicks inside banner from affecting
+         * parent navigation components.
+         */
+        event.stopPropagation();
       }}
     >
+      <div className="ad-card">
 
-      {ads.map((ad) => (
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
-        <div
-          key={ad.id}
-          style={{
-            width: "100%",
-            maxWidth: "900px",
-            borderRadius: "10px",
-            overflow: "hidden",
-            backgroundColor: "#fff",
-            boxShadow:
-              "0 2px 10px rgba(0,0,0,0.12)"
-          }}
-        >
+        <div className="ad-header">
 
-          {/* =================================================
-              BANNER IMAGE
-          ================================================= */}
+          <span className="sponsored-badge">
+            Sponsored
+          </span>
 
-          {ad.imageUrl && (
-
-            <img
-              src={ad.imageUrl}
-              alt={
-                ad.title ||
-                "Advertisement"
-              }
-              onClick={async () => {
-
-                // Record click
-
-                try {
-
-                  await axios.put(
-                    `${BASE_URL}/ads/${ad.id}/click`
-                  );
-
-                } catch (error) {
-
-                  console.log(
-                    "Banner click error:",
-                    error
-                  );
-
-                }
-
-
-                // Open advertiser
-
-                if (
-                  ad.targetUrl &&
-                  ad.targetUrl.trim() !== ""
-                ) {
-
-                  window.open(
-                    ad.targetUrl.trim(),
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-
-                }
-
-              }}
-              style={{
-                width: "100%",
-                display: "block",
-                cursor:
-                  ad.targetUrl
-                    ? "pointer"
-                    : "default"
-              }}
-            />
-
-          )}
-
-
-          {/* =================================================
-              BANNER CONTENT
-          ================================================= */}
-
-          <div
-            style={{
-              padding: "12px",
-              textAlign: "center"
-            }}
+          <button
+            type="button"
+            className="close-btn"
+            onClick={handleClose}
+            aria-label="Close advertisement"
           >
-
-            {/* TITLE */}
-
-            {ad.title && (
-
-              <h3
-                style={{
-                  margin: "5px 0"
-                }}
-              >
-                {ad.title}
-              </h3>
-
-            )}
-
-
-            {/* DESCRIPTION */}
-
-            {ad.description && (
-
-              <p
-                style={{
-                  margin: "5px 0",
-                  color: "#666"
-                }}
-              >
-                {ad.description}
-              </p>
-
-            )}
-
-
-            {/* VISIT WEBSITE */}
-
-            {ad.targetUrl && (
-
-              <button
-                onClick={async () => {
-
-                  try {
-
-                    await axios.put(
-                      `${BASE_URL}/ads/${ad.id}/click`
-                    );
-
-                  } catch (error) {
-
-                    console.log(
-                      "Banner click error:",
-                      error
-                    );
-
-                  }
-
-
-                  window.open(
-                    ad.targetUrl.trim(),
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-
-                }}
-                style={{
-                  marginTop: "8px",
-                  padding: "8px 16px",
-                  border: "none",
-                  borderRadius: "5px",
-                  backgroundColor:
-                    "#1976d2",
-                  color: "white",
-                  cursor: "pointer"
-                }}
-              >
-                Visit Website
-              </button>
-
-            )}
-
-
-            {/* SPONSORED */}
-
-            <div
-              style={{
-                marginTop: "8px",
-                fontSize: "12px",
-                color: "#999"
-              }}
-            >
-              Sponsored
-            </div>
-
-          </div>
+            ×
+          </button>
 
         </div>
 
-      ))}
+        {/* =================================================
+            IMAGE
+        ================================================= */}
 
+        {ad.imageUrl && (
+          <img
+            src={ad.imageUrl}
+            alt={
+              ad.title ||
+              "Advertisement"
+            }
+            className="ad-image"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+
+              handleClick(ad);
+            }}
+          />
+        )}
+
+        {/* =================================================
+            CONTENT
+        ================================================= */}
+
+        <div className="ad-content">
+
+          {/* ADVERTISER */}
+
+          <div className="advertiser-name">
+            {ad.advertiserName ||
+              "HariHire Partner"}
+          </div>
+
+          {/* TITLE */}
+
+          <h3 className="ad-title">
+            {ad.title}
+          </h3>
+
+          {/* DESCRIPTION */}
+
+          {ad.description && (
+            <p className="ad-description">
+              {ad.description}
+            </p>
+          )}
+
+          {/* TARGET URL */}
+
+          {ad.targetUrl && (
+            <button
+              type="button"
+              className="apply-btn"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                handleClick(ad);
+              }}
+            >
+              Apply Now
+            </button>
+          )}
+
+          {/* =================================================
+              SLIDER DOTS
+          ================================================= */}
+
+          {ads.length > 1 && (
+            <div className="slider-dots">
+
+              {ads.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={
+                    index === currentIndex
+                      ? "dot active-dot"
+                      : "dot"
+                  }
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    setCurrentIndex(index);
+                  }}
+                  aria-label={`Show advertisement ${
+                    index + 1
+                  }`}
+                />
+              ))}
+
+            </div>
+          )}
+
+        </div>
+
+      </div>
     </div>
-
   );
 }
 

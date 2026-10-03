@@ -1,0 +1,247 @@
+/* =========================================
+   HARIHIRE JOBS PAGE
+========================================= */
+
+.jobs-page{
+    min-height:100vh;
+    background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);
+  }
+  
+  /* HERO */
+  
+  .jobs-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+    linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e3a8a 50%,
+    #2563eb 100%);
+    color:#fff;
+    padding:90px 20px 130px;
+    text-align:center;
+  }
+  
+  .jobs-hero::before{
+    content:"";
+    position:absolute;
+    width:500px;
+    height:500px;
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+    top:-250px;
+    right:-150px;
+  }
+  
+  .jobs-hero h1{
+    font-size:4rem;
+    font-weight:900;
+    margin:0;
+    letter-spacing:-2px;
+  }
+  
+  .jobs-hero p{
+    max-width:700px;
+    margin:20px auto 0;
+    font-size:18px;
+    opacity:.92;
+    line-height:1.8;
+  }
+  
+  /* STATS */
+  
+  .jobs-stats{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    flex-wrap:wrap;
+    margin-top:45px;
+  }
+  
+  .stat-card{
+    min-width:180px;
+    padding:22px 28px;
+    border-radius:22px;
+    backdrop-filter:blur(16px);
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.15);
+  }
+  
+  .stat-card h2{
+    margin:0;
+    font-size:34px;
+    font-weight:800;
+  }
+  
+  .stat-card span{
+    opacity:.9;
+  }
+  
+  /* SEARCH */
+  
+  .search-wrapper{
+    max-width:1200px;
+    margin:-55px auto 50px;
+    padding:0 20px;
+  }
+  
+  .search-container{
+    background:#fff;
+    border-radius:24px;
+    padding:18px;
+    display:flex;
+    gap:12px;
+    box-shadow:
+    0 20px 60px rgba(15,23,42,.12);
+  }
+  
+  .search-input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:#f8fafc;
+    padding:20px;
+    border-radius:16px;
+    font-size:16px;
+  }
+  
+  .search-btn{
+    border:none;
+    cursor:pointer;
+    color:#fff;
+    font-weight:700;
+    padding:20px 28px;
+    border-radius:16px;
+    background:
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8);
+    transition:.3s;
+  }
+  
+  .search-btn:hover{
+    transform:translateY(-2px);
+  }
+  
+  /* SECTION */
+  
+  .jobs-section{
+    padding:30px 5% 80px;
+  }
+  
+  .section-title{
+    text-align:center;
+    font-size:38px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:40px;
+  }
+  
+  /* CATEGORY GRID */
+  
+  .category-grid{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+    gap:28px;
+  }
+  
+  /* CATEGORY CARD */
+  
+  .category-card{
+    position:relative;
+    overflow:hidden;
+    background:#fff;
+    border-radius:24px;
+    padding:28px;
+    cursor:pointer;
+    transition:.35s;
+    border:1px solid #e5e7eb;
+    box-shadow:
+    0 10px 30px rgba(15,23,42,.05);
+  }
+  
+  .category-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:6px;
+    background:
+    linear-gradient(
+    90deg,
+    #2563eb,
+    #38bdf8);
+  }
+  
+  .category-card:hover{
+    transform:translateY(-10px);
+    box-shadow:
+    0 25px 45px rgba(37,99,235,.18);
+  }
+  
+  .category-icon{
+    font-size:58px;
+    margin-bottom:18px;
+  }
+  
+  .category-title{
+    font-size:24px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:10px;
+  }
+  
+  .category-desc{
+    color:#64748b;
+    line-height:1.7;
+    min-height:70px;
+  }
+  
+  .explore-btn{
+    margin-top:18px;
+    border:none;
+    cursor:pointer;
+    color:#fff;
+    font-weight:700;
+    border-radius:12px;
+    padding:12px 20px;
+    background:
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8);
+  }
+  
+  .explore-btn:hover{
+    opacity:.95;
+  }
+  
+  /* MOBILE */
+  
+  @media(max-width:768px){
+  
+    .jobs-hero{
+      padding:70px 20px 110px;
+    }
+  
+    .jobs-hero h1{
+      font-size:2.4rem;
+    }
+  
+    .search-container{
+      flex-direction:column;
+    }
+  
+    .search-btn{
+      width:100%;
+    }
+  
+    .stat-card{
+      width:100%;
+      max-width:220px;
+    }
+  }

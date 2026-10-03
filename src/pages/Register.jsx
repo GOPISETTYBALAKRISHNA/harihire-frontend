@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../axiosConfig";
-
+import "../styles/Register.css";
+import { Link } from "react-router-dom";
 function Register() {
 
   const [fullName, setFullName] = useState("");
@@ -38,65 +39,53 @@ function Register() {
 
   return (
 
-    <div
-      style={{
-        width: "400px",
-        margin: "50px auto",
-        padding: "30px",
-        border: "1px solid #ddd",
-        borderRadius: "10px",
-        boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-      }}
+<div className="register-container">
+  <div className="register-card">
+
+    <h2 className="register-title">HariHire</h2>
+
+    <p className="register-subtitle">
+      Create your account and start your career journey
+    </p>
+
+    <input
+      type="text"
+      placeholder="Full Name"
+      value={fullName}
+      onChange={(e) => setFullName(e.target.value)}
+      className="register-input"
+    />
+
+    <input
+      type="email"
+      placeholder="Email Address"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="register-input"
+    />
+
+    <input
+      type="password"
+      placeholder="Password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="register-input"
+    />
+
+    <button
+      onClick={handleRegister}
+      className="register-btn"
     >
+      Register
+    </button>
 
-      <h2 style={{ textAlign: "center" }}>
-        Register
-      </h2>
-
-      <input
-        type="text"
-        placeholder="Enter Full Name"
-        value={fullName}
-        onChange={(e) => setFullName(e.target.value)}
-        style={{ width: "100%", padding: "10px", marginBottom: "15px" }}
-      />
-
-      <input
-        type="email"
-        placeholder="Enter Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", padding: "10px", marginBottom: "15px" }}
-      />
-
-      <input
-        type="password"
-        placeholder="Enter Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", padding: "10px", marginBottom: "15px" }}
-      />
-
-      
-
-      <button
-        onClick={handleRegister}
-        style={{
-          width: "100%",
-          padding: "10px",
-          backgroundColor: "#1976d2",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          fontSize: "16px",
-        }}
-      >
-        Register
-      </button>
-
+    <div className="login-link">
+      Already have an account?{" "}
+      <Link to="/login">Login</Link>
     </div>
 
+  </div>
+</div>
   );
 
 }

@@ -2,8 +2,69 @@ import { useEffect, useState } from "react";
 import api from "../axiosConfig";
 
 function AdminAds() {
+
+  // =====================================================
+  // ADS STATE
+  // =====================================================
+
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // =====================================================
+  // EDIT STATE
+  // ==================================================
+
+  const [editingAd, setEditingAd] = useState(null);
+
+  // =====================================================
+  // PLACEMENT OPTIONS
+  // =====================================================
+
+  const placementOptions = [
+    {
+      value: "HOME_TOP",
+      label: "Home Top",
+    },
+    {
+      value: "HOME_MIDDLE",
+      label: "Home Middle",
+    },
+    {
+      value: "JOBS_LIST",
+      label: "Jobs List",
+    },
+    {
+      value: "JOB_DETAILS",
+      label: "Job Details",
+    },
+    {
+      value: "JOB_DETAILS_SIDEBAR",
+      label: "Job Details Sidebar",
+    },
+    {
+      value: "STICKY_BOTTOM",
+      label: "Sticky Bottom",
+    },
+  ];
+
+  // =====================================================
+  // PAGE TARGET OPTIONS
+  // =====================================================
+
+  const pageTargetOptions = [
+    { value: "HOME",             label: "Home" },
+    { value: "JOBS",             label: "Jobs" },
+    { value: "JOB_DETAILS",      label: "Job Details" },
+    { value: "DASHBOARD",        label: "User Dashboard" },
+    { value: "COMPANIES",        label: "Companies" },
+    { value: "CATEGORY_JOBS",    label: "Category Jobs" },
+    { value: "MY_APPLICATIONS",  label: "My Applications" },
+    { value: "SAVED_JOBS",       label: "Saved Jobs" },
+    { value: "NOTIFICATIONS",    label: "Notifications" },
+    { value: "PROFILE",          label: "Profile" },
+    { value: "RESUME_BUILDER",   label: "Resume Builder" },
+    { value: "HELP",             label: "Help" },
+  ];
 
   // =====================================================
   // CREATE FORM
@@ -13,42 +74,54 @@ function AdminAds() {
     title: "",
     description: "",
     imageUrl: "",
+    imageFile:null,
+    bannerFile:null,
     targetUrl: "",
     advertiserName: "",
     adType: "BANNER",
     videoUrl: "",
+    videoFile: null,
     skippable: false,
     skipAfterSeconds: 10,
     displayOrder: 1,
+    placements: [],
+    targetPages: [],
   });
 
   // =====================================================
-  // EDIT
+  // EDIT FORM
   // =====================================================
-
-  const [editingAd, setEditingAd] = useState(null);
 
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
     imageUrl: "",
+    imageFile:null,
+    bannerFile:null,
     targetUrl: "",
     advertiserName: "",
     adType: "BANNER",
     videoUrl: "",
+    videoFile: null,
     skippable: false,
     skipAfterSeconds: 10,
     displayOrder: 1,
     active: true,
+    placements: [],
+    targetPages: [],
   });
 
   // =====================================================
-  // LOAD ADS
+  // LOAD ADS WHEN PAGE OPENS
   // =====================================================
 
   useEffect(() => {
     loadAds();
   }, []);
+
+  // =====================================================
+  // LOAD ADS
+  // =====================================================
 
   const loadAds = async () => {
     try {
@@ -67,9 +140,33 @@ function AdminAds() {
       } else {
         setAds([]);
       }
+
     } catch (error) {
       console.error("Load Ads Error:", error);
-      alert("Failed to load advertisements.");
+
+      let message = "Failed to load advertisements.";
+
+      if (error.response) {
+        if (typeof error.response.data === "string") {
+          message = error.response.data;
+        } else if (
+          error.response.data &&
+          error.response.data.message
+        ) {
+          message = error.response.data.message;
+        } else if (error.response.status === 403) {
+          message =
+            "You are not authorized to view advertisements.";
+        } else if (error.response.status === 500) {
+          message = "Server error. Please try again.";
+        }
+      } else if (error.request) {
+        message =
+          "Cannot connect to server. Please make sure Spring Boot backend is running on port 8085.";
+      }
+
+      alert(message);
+
     } finally {
       setLoading(false);
     }
@@ -80,11 +177,19 @@ function AdminAds() {
   // =====================================================
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = e.target;
 
     setForm((previous) => ({
       ...previous,
-      [name]: type === "checkbox" ? checked : value,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : value,
     }));
   };
 
@@ -93,12 +198,148 @@ function AdminAds() {
   // =====================================================
 
   const handleEditChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = e.target;
 
     setEditForm((previous) => ({
       ...previous,
-      [name]: type === "checkbox" ? checked : value,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : value,
     }));
+  };
+
+  // =====================================================
+  // CREATE PLACEMENT CHANGE
+  // =====================================================
+
+  const handlePlacementChange = (placement) => {
+    setForm((previous) => {
+      const currentPlacements =
+        previous.placements || [];
+
+      const alreadySelected =
+        currentPlacements.includes(placement);
+
+      if (alreadySelected) {
+        return {
+          ...previous,
+          placements:
+            currentPlacements.filter(
+              (item) => item !== placement
+            ),
+        };
+      }
+
+      return {
+        ...previous,
+        placements: [
+          ...currentPlacements,
+          placement,
+        ],
+      };
+    });
+  };
+
+  // =====================================================
+  // EDIT PLACEMENT CHANGE
+  // =====================================================
+
+  const handleEditPlacementChange = (placement) => {
+    setEditForm((previous) => {
+      const currentPlacements =
+        previous.placements || [];
+
+      const alreadySelected =
+        currentPlacements.includes(placement);
+
+      if (alreadySelected) {
+        return {
+          ...previous,
+          placements:
+            currentPlacements.filter(
+              (item) => item !== placement
+            ),
+        };
+      }
+
+      return {
+        ...previous,
+        placements: [
+          ...currentPlacements,
+          placement,
+        ],
+      };
+    });
+  };
+
+  // =====================================================
+  // CREATE PAGE TARGET CHANGE
+  // =====================================================
+
+  const handlePageTargetChange = (page) => {
+    setForm((previous) => {
+      const current =
+        previous.targetPages || [];
+
+      const alreadySelected =
+        current.includes(page);
+
+      if (alreadySelected) {
+        return {
+          ...previous,
+          targetPages:
+            current.filter(
+              (item) => item !== page
+            ),
+        };
+      }
+
+      return {
+        ...previous,
+        targetPages: [
+          ...current,
+          page,
+        ],
+      };
+    });
+  };
+
+  // =====================================================
+  // EDIT PAGE TARGET CHANGE
+  // =====================================================
+
+  const handleEditPageTargetChange = (page) => {
+    setEditForm((previous) => {
+      const current =
+        previous.targetPages || [];
+
+      const alreadySelected =
+        current.includes(page);
+
+      if (alreadySelected) {
+        return {
+          ...previous,
+          targetPages:
+            current.filter(
+              (item) => item !== page
+            ),
+        };
+      }
+
+      return {
+        ...previous,
+        targetPages: [
+          ...current,
+          page,
+        ],
+      };
+    });
   };
 
   // =====================================================
@@ -108,75 +349,172 @@ function AdminAds() {
   const createAd = async (e) => {
     e.preventDefault();
 
+    // TITLE
     if (!form.title.trim()) {
       alert("Please enter Ad Title.");
       return;
     }
 
+    // ADVERTISER
     if (!form.advertiserName.trim()) {
       alert("Please enter Advertiser Name.");
       return;
     }
 
-    // VIDEO validation
-    if (
-      form.adType === "VIDEO" &&
-      !form.videoUrl.trim()
-    ) {
-      alert("Please enter Video URL.");
-      return;
-    }
-
-    // BANNER / IMAGE validation
-    if (
-      (form.adType === "BANNER" ||
-        form.adType === "IMAGE") &&
-      !form.imageUrl.trim()
-    ) {
+    // PLACEMENT
+    if (form.placements.length === 0) {
       alert(
-        form.adType === "IMAGE"
-          ? "Please enter Image URL."
-          : "Please enter Banner Image URL."
+        "Please select at least one Ad Placement."
       );
       return;
     }
 
-    if (Number(form.displayOrder) <= 0) {
-      alert("Display Order must be greater than 0.");
+    // VIDEO
+    if (
+      form.adType === "VIDEO" &&
+      !form.videoFile
+    ) {
+      alert("Please select Video.");
       return;
     }
 
+    // IMAGE / BANNER
+    if (
+      form.adType === "BANNER" &&
+      !form.bannerFile
+    ) {
+      alert("Please select Banner Image.");
+      return;
+    }
+    // DISPLAY ORDER
+    if (Number(form.displayOrder) <= 0) {
+      alert(
+        "Display Order must be greater than 0."
+      );
+      return;
+    }
+
+    // SKIP TIME
     if (
       form.adType === "VIDEO" &&
       form.skippable &&
       Number(form.skipAfterSeconds) <= 0
     ) {
-      alert("Skip time must be greater than 0.");
+      alert(
+        "Skip time must be greater than 0."
+      );
       return;
     }
 
     try {
       setLoading(true);
+      let uploadedBannerUrl = "";
+
+if (
+  form.adType === "BANNER" &&
+  form.bannerFile
+) {
+  const uploadFormData = new FormData();
+
+  uploadFormData.append(
+    "file",
+    form.bannerFile
+  );
+
+  const uploadResponse =
+    await api.post(
+      "/ads/upload",
+      uploadFormData,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+      }
+    );
+
+  uploadedBannerUrl =
+    uploadResponse.data;
+}
+let uploadedVideoUrl = "";
+
+if (
+  form.adType === "VIDEO" &&
+  form.videoFile
+) {
+  const uploadFormData = new FormData();
+
+  uploadFormData.append(
+    "file",
+    form.videoFile
+  );
+
+  const uploadResponse =
+    await api.post(
+      "/ads/upload",
+      uploadFormData,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+      }
+    );
+
+  uploadedVideoUrl =
+    uploadResponse.data;
+}
+let uploadedImageUrl = "";
+
+if (
+  form.adType === "IMAGE" &&
+  form.imageFile
+) {
+  const uploadFormData = new FormData();
+
+  uploadFormData.append(
+    "file",
+    form.imageFile
+  );
+
+  const uploadResponse =
+    await api.post(
+      "/ads/upload",
+      uploadFormData,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+      }
+    );
+
+  uploadedImageUrl =
+    uploadResponse.data;
+}
 
       const data = {
         title: form.title.trim(),
-        description: form.description.trim(),
 
-        imageUrl:
-          form.adType === "VIDEO"
-            ? form.imageUrl.trim()
+        description:
+          form.description.trim(),
+
+          imageUrl:
+          form.adType === "BANNER"
+            ? uploadedBannerUrl
             : form.imageUrl.trim(),
-
-        targetUrl: form.targetUrl.trim(),
+        targetUrl:
+          form.targetUrl.trim(),
 
         advertiserName:
           form.advertiserName.trim(),
 
-        adType: form.adType,
-
+        adType:
+          form.adType,
+          
         videoUrl:
           form.adType === "VIDEO"
-            ? form.videoUrl.trim()
+            ? uploadedVideoUrl
             : "",
 
         skippable:
@@ -192,6 +530,12 @@ function AdminAds() {
         displayOrder:
           Number(form.displayOrder),
 
+        placements:
+          form.placements.join(","),
+
+        targetPages:
+          form.targetPages.join(","),
+
         active: true,
       };
 
@@ -201,20 +545,27 @@ function AdminAds() {
         "Advertisement created successfully."
       );
 
+      // RESET FORM
       setForm({
         title: "",
         description: "",
         imageUrl: "",
+        imageFile: null,
+        bannerFile: null,
         targetUrl: "",
         advertiserName: "",
         adType: "BANNER",
         videoUrl: "",
+        videoFile: null,
         skippable: false,
         skipAfterSeconds: 10,
         displayOrder: 1,
+        placements: [],
+        targetPages: [],
       });
 
       await loadAds();
+
     } catch (error) {
       console.error(
         "Create Ad Error:",
@@ -225,34 +576,54 @@ function AdminAds() {
         "Failed to create advertisement.";
 
       if (error.response) {
-        if (error.response.data) {
-          if (
-            typeof error.response.data ===
-            "string"
-          ) {
-            message =
-              error.response.data;
-          } else if (
-            error.response.data.message
-          ) {
-            message =
-              error.response.data.message;
-          }
+        if (
+          typeof error.response.data ===
+          "string"
+        ) {
+          message =
+            error.response.data;
+        } else if (
+          error.response.data &&
+          error.response.data.message
+        ) {
+          message =
+            error.response.data.message;
+        } else if (
+          error.response.status === 403
+        ) {
+          message =
+            "You are not authorized to create advertisements.";
+        } else if (
+          error.response.status === 400
+        ) {
+          message =
+            "Invalid advertisement data.";
+        } else if (
+          error.response.status === 500
+        ) {
+          message =
+            "Server error. Please try again.";
         }
+      } else if (error.request) {
+        message =
+          "Cannot connect to server. Please make sure Spring Boot backend is running.";
       }
 
       alert(message);
+
     } finally {
       setLoading(false);
     }
   };
 
   // =====================================================
-  // ACTIVATE
+  // ACTIVATE AD
   // =====================================================
 
   const activateAd = async (id) => {
     try {
+      setLoading(true);
+
       await api.put(
         `/ads/${id}/activate`
       );
@@ -262,24 +633,55 @@ function AdminAds() {
       );
 
       await loadAds();
+
     } catch (error) {
       console.error(
         "Activate Error:",
         error
       );
 
-      alert(
-        "Failed to activate advertisement."
-      );
+      let message =
+        "Failed to activate advertisement.";
+
+      if (error.response) {
+        if (
+          typeof error.response.data ===
+          "string"
+        ) {
+          message =
+            error.response.data;
+        } else if (
+          error.response.data &&
+          error.response.data.message
+        ) {
+          message =
+            error.response.data.message;
+        } else if (
+          error.response.status === 403
+        ) {
+          message =
+            "You are not authorized to activate advertisements.";
+        }
+      } else if (error.request) {
+        message =
+          "Cannot connect to server. Please make sure Spring Boot backend is running.";
+      }
+
+      alert(message);
+
+    } finally {
+      setLoading(false);
     }
   };
 
   // =====================================================
-  // DEACTIVATE
+  // DEACTIVATE AD
   // =====================================================
 
   const deactivateAd = async (id) => {
     try {
+      setLoading(true);
+
       await api.put(
         `/ads/${id}/deactivate`
       );
@@ -289,20 +691,49 @@ function AdminAds() {
       );
 
       await loadAds();
+
     } catch (error) {
       console.error(
         "Deactivate Error:",
         error
       );
 
-      alert(
-        "Failed to deactivate advertisement."
-      );
+      let message =
+        "Failed to deactivate advertisement.";
+
+      if (error.response) {
+        if (
+          typeof error.response.data ===
+          "string"
+        ) {
+          message =
+            error.response.data;
+        } else if (
+          error.response.data &&
+          error.response.data.message
+        ) {
+          message =
+            error.response.data.message;
+        } else if (
+          error.response.status === 403
+        ) {
+          message =
+            "You are not authorized to deactivate advertisements.";
+        }
+      } else if (error.request) {
+        message =
+          "Cannot connect to server. Please make sure Spring Boot backend is running.";
+      }
+
+      alert(message);
+
+    } finally {
+      setLoading(false);
     }
   };
 
   // =====================================================
-  // DELETE
+  // DELETE AD
   // =====================================================
 
   const deleteAd = async (id) => {
@@ -316,6 +747,8 @@ function AdminAds() {
     }
 
     try {
+      setLoading(true);
+
       await api.delete(
         `/ads/${id}`
       );
@@ -325,15 +758,44 @@ function AdminAds() {
       );
 
       await loadAds();
+
     } catch (error) {
       console.error(
         "Delete Ad Error:",
         error
       );
 
-      alert(
-        "Failed to delete advertisement."
-      );
+      let message =
+        "Failed to delete advertisement.";
+
+      if (error.response) {
+        if (
+          typeof error.response.data ===
+          "string"
+        ) {
+          message =
+            error.response.data;
+        } else if (
+          error.response.data &&
+          error.response.data.message
+        ) {
+          message =
+            error.response.data.message;
+        } else if (
+          error.response.status === 403
+        ) {
+          message =
+            "You are not authorized to delete advertisements.";
+        }
+      } else if (error.request) {
+        message =
+          "Cannot connect to server. Please make sure Spring Boot backend is running.";
+      }
+
+      alert(message);
+
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -344,14 +806,55 @@ function AdminAds() {
   const openEditForm = (ad) => {
     setEditingAd(ad);
 
+    let selectedPlacements = [];
+
+    if (Array.isArray(ad.placements)) {
+      selectedPlacements =
+        ad.placements;
+    } else if (
+      typeof ad.placements === "string" &&
+      ad.placements.trim() !== ""
+    ) {
+      selectedPlacements =
+        ad.placements
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+    }
+
+    // ===================================================
+    // PARSE targetPages (backward compatible)
+    // Old ads without targetPages default to []
+    // ===================================================
+
+    let selectedTargetPages = [];
+
+    if (Array.isArray(ad.targetPages)) {
+      selectedTargetPages = ad.targetPages;
+    } else if (
+      typeof ad.targetPages === "string" &&
+      ad.targetPages.trim() !== ""
+    ) {
+      selectedTargetPages =
+        ad.targetPages
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+    }
+
     setEditForm({
-      title: ad.title || "",
+      title:
+        ad.title || "",
+
       description:
         ad.description || "",
+
       imageUrl:
         ad.imageUrl || "",
+
       targetUrl:
         ad.targetUrl || "",
+
       advertiserName:
         ad.advertiserName || "",
 
@@ -366,9 +869,7 @@ function AdminAds() {
 
       skipAfterSeconds:
         Number(ad.skipAfterSeconds) > 0
-          ? Number(
-              ad.skipAfterSeconds
-            )
+          ? Number(ad.skipAfterSeconds)
           : 10,
 
       displayOrder:
@@ -377,12 +878,18 @@ function AdminAds() {
           : 1,
 
       active:
-        ad.active === true,
+        ad.active !== false,
+
+      placements:
+        selectedPlacements,
+
+      targetPages:
+        selectedTargetPages,
     });
   };
 
   // =====================================================
-  // CLOSE EDIT
+  // CLOSE EDIT FORM
   // =====================================================
 
   const closeEditForm = () => {
@@ -400,18 +907,29 @@ function AdminAds() {
       return;
     }
 
+    // TITLE
     if (!editForm.title.trim()) {
       alert("Please enter Ad Title.");
       return;
     }
 
+    // ADVERTISER
     if (!editForm.advertiserName.trim()) {
+      alert("Please enter Advertiser Name.");
+      return;
+    }
+
+    // PLACEMENT
+    if (
+      editForm.placements.length === 0
+    ) {
       alert(
-        "Please enter Advertiser Name."
+        "Please select at least one Ad Placement."
       );
       return;
     }
 
+    // VIDEO
     if (
       editForm.adType === "VIDEO" &&
       !editForm.videoUrl.trim()
@@ -420,6 +938,7 @@ function AdminAds() {
       return;
     }
 
+    // IMAGE / BANNER
     if (
       (editForm.adType === "BANNER" ||
         editForm.adType === "IMAGE") &&
@@ -432,7 +951,15 @@ function AdminAds() {
       );
       return;
     }
-
+    if (
+      editForm.adType === "IMAGE" &&
+      !editForm.imageUrl &&
+      !editForm.imageFile
+    ) {
+      alert("Please select Image.");
+      return;
+    }
+    // DISPLAY ORDER
     if (
       Number(editForm.displayOrder) <= 0
     ) {
@@ -441,13 +968,13 @@ function AdminAds() {
       );
       return;
     }
+    
 
+    // SKIP TIME
     if (
       editForm.adType === "VIDEO" &&
       editForm.skippable &&
-      Number(
-        editForm.skipAfterSeconds
-      ) <= 0
+      Number(editForm.skipAfterSeconds) <= 0
     ) {
       alert(
         "Skip time must be greater than 0."
@@ -457,6 +984,89 @@ function AdminAds() {
 
     try {
       setLoading(true);
+      let uploadedImageUrl = "";
+      let uploadedBannerUrl="";
+      let uploadedVideoUrl="";
+      if (
+        editForm.adType === "VIDEO" &&
+        editForm.videoFile
+      ) {
+        const uploadFormData = new FormData();
+      
+        uploadFormData.append(
+          "file",
+          editForm.videoFile
+        );
+      
+        const uploadResponse =
+          await api.post(
+            "/ads/upload",
+            uploadFormData,
+            {
+              headers: {
+                "Content-Type":
+                  "multipart/form-data",
+              },
+            }
+          );
+      
+        uploadedVideoUrl =
+          uploadResponse.data;
+      }
+
+
+      if (
+        editForm.adType === "IMAGE" &&
+        editForm.imageFile
+      ){
+  const uploadFormData = new FormData();
+
+  uploadFormData.append(
+    "file",
+    editForm.imageFile
+    );
+
+  const uploadResponse =
+    await api.post(
+      "/ads/upload",
+      uploadFormData,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+      }
+    );
+
+  uploadedImageUrl =
+    uploadResponse.data;
+}
+if (
+  editForm.adType === "BANNER" &&
+  editForm.bannerFile
+) {
+  const uploadFormData = new FormData();
+
+  uploadFormData.append(
+    "file",
+    editForm.bannerFile
+  );
+
+  const uploadResponse =
+    await api.post(
+      "/ads/upload",
+      uploadFormData,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+      }
+    );
+
+  uploadedBannerUrl =
+    uploadResponse.data;
+}
 
       const data = {
         title:
@@ -465,8 +1075,18 @@ function AdminAds() {
         description:
           editForm.description.trim(),
 
-        imageUrl:
-          editForm.imageUrl.trim(),
+          imageUrl:
+  editForm.adType === "IMAGE"
+    ? (
+        uploadedImageUrl ||
+        editForm.imageUrl
+      )
+    : editForm.adType === "BANNER"
+    ? (
+        uploadedBannerUrl ||
+        editForm.imageUrl
+      )
+    : "",
 
         targetUrl:
           editForm.targetUrl.trim(),
@@ -477,11 +1097,13 @@ function AdminAds() {
         adType:
           editForm.adType,
 
-        videoUrl:
+          videoUrl:
           editForm.adType === "VIDEO"
-            ? editForm.videoUrl.trim()
+            ? (
+                uploadedVideoUrl ||
+                editForm.videoUrl
+              )
             : "",
-
         skippable:
           editForm.adType === "VIDEO"
             ? editForm.skippable
@@ -499,6 +1121,12 @@ function AdminAds() {
             editForm.displayOrder
           ),
 
+        placements:
+          editForm.placements.join(","),
+
+        targetPages:
+          editForm.targetPages.join(","),
+
         active:
           editForm.active,
       };
@@ -515,6 +1143,7 @@ function AdminAds() {
       setEditingAd(null);
 
       await loadAds();
+
     } catch (error) {
       console.error(
         "Update Ad Error:",
@@ -525,26 +1154,478 @@ function AdminAds() {
         "Failed to update advertisement.";
 
       if (error.response) {
-        if (error.response.data) {
-          if (
-            typeof error.response.data ===
-            "string"
-          ) {
-            message =
-              error.response.data;
-          } else if (
-            error.response.data.message
-          ) {
-            message =
-              error.response.data.message;
-          }
+        if (
+          typeof error.response.data ===
+          "string"
+        ) {
+          message =
+            error.response.data;
+        } else if (
+          error.response.data &&
+          error.response.data.message
+        ) {
+          message =
+            error.response.data.message;
+        } else if (
+          error.response.status === 403
+        ) {
+          message =
+            "You are not authorized to update advertisements.";
+        } else if (
+          error.response.status === 400
+        ) {
+          message =
+            "Invalid advertisement data.";
+        } else if (
+          error.response.status === 500
+        ) {
+          message =
+            "Server error. Please try again.";
         }
+      } else if (error.request) {
+        message =
+          "Cannot connect to server. Please make sure Spring Boot backend is running.";
       }
 
       alert(message);
+
     } finally {
       setLoading(false);
     }
+  };
+
+  // =====================================================
+  // GET PLACEMENT LABEL
+  // =====================================================
+
+  const getPlacementLabel = (placement) => {
+    const found =
+      placementOptions.find(
+        (item) =>
+          item.value === placement
+      );
+
+    return found
+      ? found.label
+      : placement;
+  };
+
+  // =====================================================
+  // STYLES
+  // =====================================================
+
+  const pageStyle = {
+    padding: "30px",
+    backgroundColor: "#f8fafc",
+    minHeight: "100vh",
+  };
+
+  const headerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "25px",
+    gap: "20px",
+    flexWrap: "wrap",
+  };
+
+  const pageTitle = {
+    margin: 0,
+    fontSize: "30px",
+    fontWeight: "700",
+    color: "#111827",
+  };
+
+  const pageSubtitle = {
+    marginTop: "8px",
+    color: "#6b7280",
+    fontSize: "15px",
+  };
+
+  const totalBadge = {
+    backgroundColor: "#2563eb",
+    color: "#ffffff",
+    padding: "12px 18px",
+    borderRadius: "10px",
+    fontWeight: "700",
+  };
+
+  const cardStyle = {
+    backgroundColor: "#ffffff",
+    borderRadius: "14px",
+    padding: "25px",
+    marginBottom: "30px",
+    boxShadow:
+      "0 4px 15px rgba(0,0,0,0.08)",
+  };
+
+  const sectionTitle = {
+    marginTop: 0,
+    marginBottom: "20px",
+    fontSize: "22px",
+    color: "#111827",
+  };
+
+  const formGrid = {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(250px, 1fr))",
+    gap: "20px",
+    marginBottom: "20px",
+  };
+
+  const fieldStyle = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    marginBottom: "20px",
+  };
+
+  const labelStyle = {
+    fontWeight: "600",
+    color: "#374151",
+    fontSize: "14px",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "12px",
+    border:
+      "1px solid #d1d5db",
+    borderRadius: "8px",
+    fontSize: "14px",
+    outline: "none",
+    backgroundColor: "#ffffff",
+  };
+
+  const textareaStyle = {
+    ...inputStyle,
+    minHeight: "100px",
+    resize: "vertical",
+  };
+
+  const helpText = {
+    color: "#6b7280",
+    fontSize: "12px",
+  };
+
+  const placementBox = {
+    backgroundColor: "#eff6ff",
+    border: "1px solid #bfdbfe",
+    borderRadius: "10px",
+    padding: "20px",
+    marginBottom: "20px",
+  };
+
+  // ===================================================
+  // PAGE TARGET STYLES
+  // ===================================================
+
+  const pageTargetBox = {
+    backgroundColor: "#f0fdf4",
+    border: "1px solid #bbf7d0",
+    borderRadius: "10px",
+    padding: "20px",
+    marginBottom: "20px",
+  };
+
+  const pageTargetDescription = {
+    color: "#6b7280",
+    fontSize: "14px",
+    marginBottom: "15px",
+  };
+
+  const pageTargetGrid = {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "10px",
+  };
+
+  const pageTargetOption = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    backgroundColor: "#ffffff",
+    padding: "10px",
+    borderRadius: "8px",
+    cursor: "pointer",
+  };
+
+  const placementDescription = {
+    color: "#6b7280",
+    fontSize: "14px",
+    marginBottom: "15px",
+  };
+
+  const placementGrid = {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: "12px",
+  };
+
+  const placementOption = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    backgroundColor: "#ffffff",
+    padding: "10px",
+    borderRadius: "8px",
+    cursor: "pointer",
+  };
+
+  const settingsBox = {
+    backgroundColor: "#f9fafb",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "20px",
+    marginBottom: "20px",
+  };
+
+  const imageSettingsStyle = {
+    ...settingsBox,
+    backgroundColor: "#f0fdf4",
+    border:
+      "1px solid #bbf7d0",
+  };
+
+  const videoSettingsStyle = {
+    ...settingsBox,
+    backgroundColor: "#fefce8",
+    border:
+      "1px solid #fde68a",
+  };
+
+  const settingsTitle = {
+    marginTop: 0,
+    marginBottom: "15px",
+    color: "#374151",
+    fontSize: "17px",
+  };
+
+  const checkboxLabel = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginTop: "15px",
+    fontWeight: "600",
+    color: "#374151",
+  };
+
+  const primaryButton = {
+    border: "none",
+    backgroundColor: "#2563eb",
+    color: "#ffffff",
+    padding: "13px 22px",
+    borderRadius: "8px",
+    fontSize: "15px",
+    fontWeight: "600",
+    cursor: "pointer",
+  };
+
+  const existingSection = {
+    marginTop: "30px",
+  };
+
+  const existingHeader = {
+    marginBottom: "20px",
+  };
+
+  const emptyBox = {
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    padding: "35px",
+    textAlign: "center",
+    color: "#6b7280",
+    boxShadow:
+      "0 3px 12px rgba(0,0,0,0.06)",
+  };
+
+  const adCardStyle = {
+    backgroundColor: "#ffffff",
+    borderRadius: "14px",
+    padding: "24px",
+    marginBottom: "20px",
+    boxShadow:
+      "0 4px 15px rgba(0,0,0,0.08)",
+  };
+
+  const adTopRow = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
+  };
+
+  const orderBadge = {
+    display: "inline-block",
+    backgroundColor: "#e5e7eb",
+    color: "#374151",
+    padding: "5px 9px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "700",
+    marginRight: "8px",
+  };
+
+  const bannerBadge = {
+    display: "inline-block",
+    backgroundColor: "#dbeafe",
+    color: "#1d4ed8",
+    padding: "5px 9px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "700",
+    marginRight: "8px",
+  };
+
+  const imageBadge = {
+    display: "inline-block",
+    backgroundColor: "#dcfce7",
+    color: "#15803d",
+    padding: "5px 9px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "700",
+    marginRight: "8px",
+  };
+
+  const videoBadge = {
+    display: "inline-block",
+    backgroundColor: "#fef3c7",
+    color: "#b45309",
+    padding: "5px 9px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "700",
+    marginRight: "8px",
+  };
+
+  const activeBadge = {
+    display: "inline-block",
+    backgroundColor: "#dcfce7",
+    color: "#15803d",
+    padding: "5px 9px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "700",
+  };
+
+  const inactiveBadge = {
+    display: "inline-block",
+    backgroundColor: "#fee2e2",
+    color: "#b91c1c",
+    padding: "5px 9px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "700",
+  };
+
+  const adTitle = {
+    marginTop: "15px",
+    marginBottom: "8px",
+    fontSize: "20px",
+    color: "#111827",
+  };
+
+  const descriptionStyle = {
+    color: "#6b7280",
+    lineHeight: "1.6",
+    marginBottom: "18px",
+  };
+
+  const detailsGrid = {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "15px",
+    marginBottom: "20px",
+  };
+
+  const savedPlacementBox = {
+    backgroundColor: "#f9fafb",
+    padding: "15px",
+    borderRadius: "8px",
+    marginBottom: "20px",
+  };
+
+  const savedPlacementList = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    marginTop: "10px",
+  };
+
+  const placementBadge = {
+    backgroundColor: "#e0e7ff",
+    color: "#3730a3",
+    padding: "6px 10px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "600",
+  };
+
+  const noPlacementText = {
+    color: "#9ca3af",
+    fontSize: "13px",
+  };
+
+  const imageInfoBox = {
+    backgroundColor: "#f9fafb",
+    borderRadius: "10px",
+    padding: "15px",
+    marginBottom: "20px",
+  };
+
+  const imagePreviewWrapper = {
+    width: "100%",
+    maxHeight: "250px",
+    overflow: "hidden",
+    borderRadius: "8px",
+    backgroundColor: "#e5e7eb",
+    marginBottom: "10px",
+  };
+
+  const imagePreview = {
+    display: "block",
+    width: "100%",
+    maxHeight: "250px",
+    objectFit: "contain",
+  };
+
+  const videoInfoBox = {
+    backgroundColor: "#f9fafb",
+    padding: "15px",
+    borderRadius: "10px",
+    marginBottom: "20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  };
+
+  const urlText = {
+    wordBreak: "break-all",
+    color: "#4b5563",
+    fontSize: "13px",
+    marginTop: "8px",
+  };
+
+  const actionsStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+    marginTop: "20px",
+  };
+
+  const actionButton = {
+    border: "none",
+    color: "#ffffff",
+    padding: "10px 16px",
+    borderRadius: "7px",
+    cursor: "pointer",
+    fontWeight: "600",
   };
 
   // =====================================================
@@ -554,7 +1635,9 @@ function AdminAds() {
   return (
     <div style={pageStyle}>
 
-      {/* HEADER */}
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
       <div style={headerStyle}>
 
@@ -575,7 +1658,6 @@ function AdminAds() {
 
       </div>
 
-
       {/* =================================================
           CREATE AD
       ================================================= */}
@@ -588,9 +1670,9 @@ function AdminAds() {
 
         <form onSubmit={createAd}>
 
-          <div style={formGrid}>
+          {/* TITLE + ADVERTISER */}
 
-            {/* TITLE */}
+          <div style={formGrid}>
 
             <div style={fieldStyle}>
 
@@ -608,9 +1690,6 @@ function AdminAds() {
               />
 
             </div>
-
-
-            {/* ADVERTISER */}
 
             <div style={fieldStyle}>
 
@@ -633,7 +1712,6 @@ function AdminAds() {
 
           </div>
 
-
           {/* DESCRIPTION */}
 
           <div style={fieldStyle}>
@@ -645,15 +1723,12 @@ function AdminAds() {
             <textarea
               name="description"
               placeholder="Enter advertisement description"
-              value={
-                form.description
-              }
+              value={form.description}
               onChange={handleChange}
               style={textareaStyle}
             />
 
           </div>
-
 
           {/* TARGET URL */}
 
@@ -667,17 +1742,14 @@ function AdminAds() {
               type="text"
               name="targetUrl"
               placeholder="https://example.com"
-              value={
-                form.targetUrl
-              }
+              value={form.targetUrl}
               onChange={handleChange}
               style={inputStyle}
             />
 
           </div>
 
-
-          {/* TYPE + ORDER */}
+          {/* TYPE + DISPLAY ORDER */}
 
           <div style={formGrid}>
 
@@ -689,26 +1761,18 @@ function AdminAds() {
 
               <select
                 name="adType"
-                value={
-                  form.adType
-                }
+                value={form.adType}
                 onChange={handleChange}
                 style={inputStyle}
               >
-
-                {/* EXISTING BANNER */}
 
                 <option value="BANNER">
                   Banner Advertisement
                 </option>
 
-                {/* NEW IMAGE */}
-
                 <option value="IMAGE">
                   Image Advertisement
                 </option>
-
-                {/* EXISTING VIDEO */}
 
                 <option value="VIDEO">
                   Video Advertisement
@@ -717,7 +1781,6 @@ function AdminAds() {
               </select>
 
             </div>
-
 
             <div style={fieldStyle}>
 
@@ -745,45 +1808,138 @@ function AdminAds() {
 
           </div>
 
+          {/* PLACEMENTS */}
 
-          {/* =================================================
-              BANNER SETTINGS
-          ================================================= */}
+          <div style={placementBox}>
 
-          {form.adType === "BANNER" && (
+            <h3 style={settingsTitle}>
+              Ad Placement
+            </h3>
 
-            <div style={settingsBox}>
+            <p style={placementDescription}>
+              Select where this advertisement
+              should appear on the website.
+            </p>
 
-              <h3 style={settingsTitle}>
-                Banner Settings
-              </h3>
+            <div style={placementGrid}>
 
-              <label style={labelStyle}>
-                Banner Image URL
-              </label>
+              {placementOptions.map(
+                (option) => (
+                  <label
+                    key={option.value}
+                    style={placementOption}
+                  >
 
-              <input
-                type="text"
-                name="imageUrl"
-                placeholder="https://example.com/banner.jpg"
-                value={
-                  form.imageUrl
-                }
-                onChange={handleChange}
-                style={inputStyle}
-              />
+                    <input
+                      type="checkbox"
+                      checked={
+                        form.placements.includes(
+                          option.value
+                        )
+                      }
+                      onChange={() =>
+                        handlePlacementChange(
+                          option.value
+                        )
+                      }
+                    />
+
+                    <span>
+                      {option.label}
+                    </span>
+
+                  </label>
+                )
+              )}
 
             </div>
 
-          )}
-
+          </div>
 
           {/* =================================================
-              IMAGE SETTINGS - NEW
+              PAGE TARGETING
           ================================================= */}
 
-          {form.adType === "IMAGE" && (
+          <div style={pageTargetBox}>
 
+            <h3 style={settingsTitle}>
+              Show Advertisement On
+            </h3>
+
+            <p style={pageTargetDescription}>
+              Select which pages this
+              advertisement should appear on.
+              Leaving all unchecked means no
+              page restriction is stored.
+            </p>
+
+            <div style={pageTargetGrid}>
+
+              {pageTargetOptions.map(
+                (option) => (
+                  <label
+                    key={option.value}
+                    style={pageTargetOption}
+                  >
+
+                    <input
+                      type="checkbox"
+                      checked={
+                        (form.targetPages || []).includes(
+                          option.value
+                        )
+                      }
+                      onChange={() =>
+                        handlePageTargetChange(
+                          option.value
+                        )
+                      }
+                    />
+
+                    <span>
+                      {option.label}
+                    </span>
+
+                  </label>
+                )
+              )}
+
+            </div>
+
+          </div>
+
+          {/* BANNER */}
+
+          {form.adType === "BANNER" && (
+  <div style={settingsBox}>
+
+    <h3 style={settingsTitle}>
+      Banner Settings
+    </h3>
+
+    <label style={labelStyle}>
+      Upload Banner Image *
+    </label>
+
+    <input
+      type="file"
+      accept="image/*"
+      name="bannerFile"
+      onChange={(e) =>
+        setForm({
+          ...form,
+          bannerFile: e.target.files[0],
+        })
+      }
+      style={inputStyle}
+    />
+
+  </div>
+)}
+
+          {/* IMAGE */}
+
+          {form.adType === "IMAGE" && (
             <div style={imageSettingsStyle}>
 
               <h3 style={settingsTitle}>
@@ -791,36 +1947,27 @@ function AdminAds() {
               </h3>
 
               <label style={labelStyle}>
-                Image URL *
-              </label>
+  Upload Image *
+</label>
 
-              <input
-                type="text"
-                name="imageUrl"
-                placeholder="https://example.com/ad-image.jpg"
-                value={
-                  form.imageUrl
-                }
-                onChange={handleChange}
-                style={inputStyle}
-              />
-
-              <small style={helpText}>
-                This image will be displayed
-                as an advertisement.
-              </small>
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    setForm({
+      ...form,
+      imageFile: e.target.files[0],
+    })
+  }
+  style={inputStyle}
+/>
 
             </div>
-
           )}
 
-
-          {/* =================================================
-              VIDEO SETTINGS
-          ================================================= */}
+          {/* VIDEO */}
 
           {form.adType === "VIDEO" && (
-
             <div style={videoSettingsStyle}>
 
               <h3 style={settingsTitle}>
@@ -832,16 +1979,16 @@ function AdminAds() {
               </label>
 
               <input
-                type="text"
-                name="videoUrl"
-                placeholder="https://example.com/video.mp4"
-                value={
-                  form.videoUrl
-                }
-                onChange={handleChange}
-                style={inputStyle}
-              />
-
+  type="file"
+  accept="video/*"
+  onChange={(e) =>
+    setForm({
+      ...form,
+      videoFile: e.target.files[0],
+    })
+  }
+  style={inputStyle}
+/>
               <label style={checkboxLabel}>
 
                 <input
@@ -860,7 +2007,6 @@ function AdminAds() {
               </label>
 
               {form.skippable && (
-
                 <div style={fieldStyle}>
 
                   <label style={labelStyle}>
@@ -879,21 +2025,19 @@ function AdminAds() {
                   />
 
                 </div>
-
               )}
 
             </div>
-
           )}
 
+          {/* CREATE BUTTON */}
 
           <button
             type="submit"
             disabled={loading}
             style={{
               ...primaryButton,
-              opacity:
-                loading ? 0.6 : 1,
+              opacity: loading ? 0.6 : 1,
             }}
           >
             {loading
@@ -905,33 +2049,27 @@ function AdminAds() {
 
       </div>
 
-
       {/* =================================================
-          EXISTING ADS
+          EXISTING ADVERTISEMENTS
       ================================================= */}
 
       <div style={existingSection}>
 
         <div style={existingHeader}>
 
-          <div>
+          <h2 style={sectionTitle}>
+            Existing Advertisements
+          </h2>
 
-            <h2 style={sectionTitle}>
-              Existing Advertisements
-            </h2>
-
-            <p style={pageSubtitle}>
-              Manage all advertisements
-              from here.
-            </p>
-
-          </div>
+          <p style={pageSubtitle}>
+            Manage all advertisements from here.
+          </p>
 
         </div>
 
+        {/* LOADING */}
 
-        {loading &&
-        ads.length === 0 ? (
+        {loading && ads.length === 0 ? (
 
           <div style={emptyBox}>
             Loading advertisements...
@@ -947,438 +2085,607 @@ function AdminAds() {
 
           <div>
 
-            {ads.map((ad, index) => (
+            {ads.map((ad, index) => {
 
-              <div
-                key={ad.id}
-                style={adCardStyle}
-              >
+              // -----------------------------------------
+              // PLACEMENTS
+              // -----------------------------------------
 
-                {/* TOP */}
+              let adPlacements = [];
 
-                <div style={adTopRow}>
+              if (
+                Array.isArray(ad.placements)
+              ) {
+                adPlacements =
+                  ad.placements;
+              } else if (
+                typeof ad.placements === "string" &&
+                ad.placements.trim() !== ""
+              ) {
+                adPlacements =
+                  ad.placements
+                    .split(",")
+                    .map(
+                      (item) =>
+                        item.trim()
+                    )
+                    .filter(Boolean);
+              }
 
-                  <div>
+              return (
+                <div
+                  key={ad.id}
+                  style={adCardStyle}
+                >
 
-                    <span
-                      style={orderBadge}
-                    >
-                      Order{" "}
-                      {ad.displayOrder ||
-                        index + 1}
-                    </span>
+                  {/* TOP ROW */}
 
+                  <div style={adTopRow}>
 
-                    <span
+                    <div>
+
+                      <span
+                        style={orderBadge}
+                      >
+                        Order{" "}
+                        {ad.displayOrder ||
+                          index + 1}
+                      </span>
+
+                      <span
+                        style={
+                          ad.adType === "VIDEO"
+                            ? videoBadge
+                            : ad.adType === "IMAGE"
+                            ? imageBadge
+                            : bannerBadge
+                        }
+                      >
+                        {ad.adType === "VIDEO"
+                          ? "VIDEO"
+                          : ad.adType === "IMAGE"
+                          ? "IMAGE"
+                          : "BANNER"}
+                      </span>
+
+                      <span
+                        style={
+                          ad.active
+                            ? activeBadge
+                            : inactiveBadge
+                        }
+                      >
+                        {ad.active
+                          ? "ACTIVE"
+                          : "INACTIVE"}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                  {/* TITLE */}
+
+                  <h3 style={adTitle}>
+
+                    {ad.adType === "VIDEO"
+                      ? "🎬"
+                      : ad.adType === "IMAGE"
+                      ? "🖼️"
+                      : "📢"}{" "}
+
+                    {ad.title}
+
+                  </h3>
+
+                  {/* DESCRIPTION */}
+
+                  {ad.description && (
+                    <p
                       style={
-                        ad.adType ===
-                        "VIDEO"
-                          ? videoBadge
-                          : ad.adType ===
-                            "IMAGE"
-                          ? imageBadge
-                          : bannerBadge
+                        descriptionStyle
                       }
                     >
+                      {ad.description}
+                    </p>
+                  )}
 
-                      {ad.adType ===
-                      "VIDEO"
-                        ? "VIDEO"
-                        : ad.adType ===
-                          "IMAGE"
-                        ? "IMAGE"
-                        : "BANNER"}
+                  {/* DETAILS */}
 
-                    </span>
+                  <div style={detailsGrid}>
 
+                    <div>
+                      <strong>
+                        Advertiser
+                      </strong>
 
-                    <span
-                      style={
-                        ad.active
-                          ? activeBadge
-                          : inactiveBadge
-                      }
-                    >
-                      {ad.active
-                        ? "ACTIVE"
-                        : "INACTIVE"}
-                    </span>
+                      <div>
+                        {ad.advertiserName ||
+                          "-"}
+                      </div>
+                    </div>
+
+                    <div>
+                      <strong>
+                        Display Order
+                      </strong>
+
+                      <div>
+                        {ad.displayOrder ||
+                          index + 1}
+                      </div>
+                    </div>
+
+                    <div>
+                      <strong>
+                        Impressions
+                      </strong>
+
+                      <div>
+                        {ad.impressions ||
+                          0}
+                      </div>
+                    </div>
+
+                    <div>
+                      <strong>
+                        Clicks
+                      </strong>
+
+                      <div>
+                        {ad.clicks ||
+                          0}
+                      </div>
+                    </div>
 
                   </div>
 
-                </div>
-
-
-                {/* TITLE */}
-
-                <h3 style={adTitle}>
-
-                  {ad.adType ===
-                  "VIDEO"
-                    ? "🎬"
-                    : ad.adType ===
-                      "IMAGE"
-                    ? "🖼️"
-                    : "📢"}{" "}
-
-                  {ad.title}
-
-                </h3>
-
-
-                {/* DESCRIPTION */}
-
-                {ad.description && (
-
-                  <p style={descriptionStyle}>
-                    {ad.description}
-                  </p>
-
-                )}
-
-
-                {/* DETAILS */}
-
-                <div style={detailsGrid}>
-
-                  <div>
-                    <strong>
-                      Advertiser
-                    </strong>
-
-                    <span>
-                      {ad.advertiserName ||
-                        "-"}
-                    </span>
-                  </div>
-
-
-                  <div>
-                    <strong>
-                      Display Order
-                    </strong>
-
-                    <span>
-                      {ad.displayOrder ||
-                        index + 1}
-                    </span>
-                  </div>
-
-
-                  <div>
-                    <strong>
-                      Impressions
-                    </strong>
-
-                    <span>
-                      {ad.impressions ||
-                        0}
-                    </span>
-                  </div>
-
-
-                  <div>
-                    <strong>
-                      Clicks
-                    </strong>
-
-                    <span>
-                      {ad.clicks ||
-                        0}
-                    </span>
-                  </div>
-
-                </div>
-
-
-                {/* IMAGE DETAILS */}
-
-                {ad.adType ===
-                  "IMAGE" && (
+                  {/* PLACEMENTS */}
 
                   <div
                     style={
-                      imageInfoBox
+                      savedPlacementBox
                     }
                   >
 
+                    <strong>
+                      Ad Placements
+                    </strong>
+
                     <div
-                      style={imagePreviewWrapper}
+                      style={
+                        savedPlacementList
+                      }
                     >
 
-                      {ad.imageUrl && (
+                      {adPlacements.length >
+                      0 ? (
 
-                        <img
-                          src={
-                            ad.imageUrl
-                          }
-                          alt={
-                            ad.title
-                          }
+                        adPlacements.map(
+                          (placement) => (
+                            <span
+                              key={
+                                placement
+                              }
+                              style={
+                                placementBadge
+                              }
+                            >
+                              {getPlacementLabel(
+                                placement
+                              )}
+                            </span>
+                          )
+                        )
+
+                      ) : (
+
+                        <span
                           style={
-                            imagePreview
+                            noPlacementText
                           }
-                        />
+                        >
+                          No placement selected
+                        </span>
 
                       )}
 
                     </div>
 
+                  </div>
 
+                  {/* IMAGE */}
+
+                  {ad.adType === "IMAGE" && (
                     <div
-                      style={urlText}
+                      style={imageInfoBox}
                     >
-                      <strong>
-                        Image:
-                      </strong>{" "}
-                      {ad.imageUrl ||
-                        "Not available"}
+
+                      <div
+                        style={
+                          imagePreviewWrapper
+                        }
+                      >
+
+                        {ad.imageUrl ? (
+                          <img
+                            src={
+                              ad.imageUrl
+                            }
+                            alt={
+                              ad.title ||
+                              "Advertisement"
+                            }
+                            style={
+                              imagePreview
+                            }
+                            onError={(e) => {
+                              e.currentTarget.style.display =
+                                "none";
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              padding: "30px",
+                              textAlign:
+                                "center",
+                              color:
+                                "#6b7280",
+                            }}
+                          >
+                            Image not available
+                          </div>
+                        )}
+
+                      </div>
+
+                      <div
+                        style={urlText}
+                      >
+                        <strong>
+                          Image:
+                        </strong>{" "}
+                        {ad.imageUrl ||
+                          "Not available"}
+                      </div>
+
                     </div>
-
-                  </div>
-
-                )}
-
-
-                {/* VIDEO DETAILS */}
-
-                {ad.adType ===
-                  "VIDEO" && (
-
-                  <div
-                    style={
-                      videoInfoBox
-                    }
-                  >
-
-                    <div>
-                      <strong>
-                        Completed Views:
-                      </strong>{" "}
-                      {ad.videoViews ||
-                        0}
-                    </div>
-
-
-                    <div>
-                      <strong>
-                        Skip:
-                      </strong>{" "}
-
-                      {ad.skippable
-                        ? `After ${ad.skipAfterSeconds}s`
-                        : "Not Skippable"}
-
-                    </div>
-
-
-                    <div
-                      style={urlText}
-                    >
-                      <strong>
-                        Video:
-                      </strong>{" "}
-                      {ad.videoUrl ||
-                        "Not available"}
-                    </div>
-
-                  </div>
-
-                )}
-
-
-                {/* TARGET URL */}
-
-                {ad.targetUrl && (
-
-                  <div
-                    style={urlText}
-                  >
-                    <strong>
-                      Target URL:
-                    </strong>{" "}
-                    {ad.targetUrl}
-                  </div>
-
-                )}
-
-
-                {/* ACTIONS */}
-
-                <div
-                  style={actionsStyle}
-                >
-
-                  {ad.active ? (
-
-                    <button
-                      onClick={() =>
-                        deactivateAd(
-                          ad.id
-                        )
-                      }
-                      style={{
-                        ...actionButton,
-                        backgroundColor:
-                          "#f59e0b",
-                      }}
-                    >
-                      Deactivate
-                    </button>
-
-                  ) : (
-
-                    <button
-                      onClick={() =>
-                        activateAd(
-                          ad.id
-                        )
-                      }
-                      style={{
-                        ...actionButton,
-                        backgroundColor:
-                          "#16a34a",
-                      }}
-                    >
-                      Activate
-                    </button>
-
                   )}
 
+                  {/* BANNER */}
 
-                  <button
-                    onClick={() =>
-                      openEditForm(ad)
-                    }
-                    style={{
-                      ...actionButton,
-                      backgroundColor:
-                        "#2563eb",
-                    }}
+                  {ad.adType === "BANNER" && (
+                    <div
+                      style={imageInfoBox}
+                    >
+
+                      <div
+                        style={
+                          imagePreviewWrapper
+                        }
+                      >
+
+                        {ad.imageUrl ? (
+                          <img
+                            src={
+                              ad.imageUrl
+                            }
+                            alt={
+                              ad.title ||
+                              "Banner Advertisement"
+                            }
+                            style={
+                              imagePreview
+                            }
+                            onError={(e) => {
+                              e.currentTarget.style.display =
+                                "none";
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              padding: "30px",
+                              textAlign:
+                                "center",
+                              color:
+                                "#6b7280",
+                            }}
+                          >
+                            Banner image not available
+                          </div>
+                        )}
+
+                      </div>
+
+                      <div
+                        style={urlText}
+                      >
+                        <strong>
+                          Banner Image:
+                        </strong>{" "}
+                        {ad.imageUrl ||
+                          "Not available"}
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* VIDEO */}
+
+                  {ad.adType === "VIDEO" && (
+                    <div
+                      style={
+                        videoInfoBox
+                      }
+                    >
+
+                      <div>
+                        <strong>
+                          Completed Views:
+                        </strong>{" "}
+                        {ad.videoViews ||
+                          0}
+                      </div>
+
+                      <div>
+                        <strong>
+                          Skip:
+                        </strong>{" "}
+                        {ad.skippable
+                          ? `After ${ad.skipAfterSeconds}s`
+                          : "Not Skippable"}
+                      </div>
+
+                      <div
+                        style={urlText}
+                      >
+                        <strong>
+                          Video:
+                        </strong>{" "}
+                        {ad.videoUrl ||
+                          "Not available"}
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* TARGET URL */}
+
+                  {ad.targetUrl && (
+                    <div
+                      style={urlText}
+                    >
+                      <strong>
+                        Target URL:
+                      </strong>{" "}
+                      {ad.targetUrl}
+                    </div>
+                  )}
+
+                  {/* ACTION BUTTONS */}
+
+                  <div
+                    style={actionsStyle}
                   >
-                    Edit
-                  </button>
 
+                    {/* ACTIVATE / DEACTIVATE */}
 
-                  <button
-                    onClick={() =>
-                      deleteAd(
-                        ad.id
-                      )
-                    }
-                    style={{
-                      ...actionButton,
-                      backgroundColor:
-                        "#dc2626",
-                    }}
-                  >
-                    Delete
-                  </button>
+                    {ad.active ? (
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deactivateAd(
+                            ad.id
+                          )
+                        }
+                        style={{
+                          ...actionButton,
+                          backgroundColor:
+                            "#f59e0b",
+                        }}
+                      >
+                        Deactivate
+                      </button>
+
+                    ) : (
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          activateAd(
+                            ad.id
+                          )
+                        }
+                        style={{
+                          ...actionButton,
+                          backgroundColor:
+                            "#16a34a",
+                        }}
+                      >
+                        Activate
+                      </button>
+
+                    )}
+
+                    {/* EDIT */}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openEditForm(ad)
+                      }
+                      style={{
+                        ...actionButton,
+                        backgroundColor:
+                          "#2563eb",
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    {/* DELETE */}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        deleteAd(ad.id)
+                      }
+                      style={{
+                        ...actionButton,
+                        backgroundColor:
+                          "#dc2626",
+                      }}
+                    >
+                      Delete
+                    </button>
+
+                  </div>
 
                 </div>
-
-              </div>
-
-            ))}
+              );
+            })}
 
           </div>
-
         )}
 
       </div>
-
 
       {/* =================================================
           EDIT MODAL
       ================================================= */}
 
       {editingAd && (
-
         <div
-          style={modalOverlay}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor:
+              "rgba(0,0,0,0.55)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
+            zIndex: 9999,
+            overflowY: "auto",
+          }}
         >
 
           <div
-            style={modalStyle}
+            style={{
+              backgroundColor: "#ffffff",
+              width: "100%",
+              maxWidth: "800px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              borderRadius: "14px",
+              padding: "25px",
+              boxSizing: "border-box",
+            }}
           >
 
+            {/* MODAL HEADER */}
+
             <div
-              style={modalHeader}
+              style={{
+                display: "flex",
+                justifyContent:
+                  "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+              }}
             >
 
-              <div>
-
-                <h2
-                  style={modalTitle}
-                >
-                  Edit Advertisement
-                </h2>
-
-                <p
-                  style={pageSubtitle}
-                >
-                  Update advertisement
-                  information.
-                </p>
-
-              </div>
-
+              <h2
+                style={{
+                  margin: 0,
+                  color: "#111827",
+                }}
+              >
+                Edit Advertisement
+              </h2>
 
               <button
                 type="button"
-                onClick={
-                  closeEditForm
-                }
-                style={
-                  closeIconButton
-                }
+                onClick={closeEditForm}
+                style={{
+                  border: "none",
+                  backgroundColor:
+                    "#e5e7eb",
+                  width: "35px",
+                  height: "35px",
+                  borderRadius: "50%",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
               >
                 ×
               </button>
 
             </div>
 
+            {/* EDIT FORM */}
 
-            <form
-              onSubmit={
-                updateAd
-              }
-            >
+            <form onSubmit={updateAd}>
 
-              {/* TITLE */}
+              {/* TITLE + ADVERTISER */}
 
-              <div
-                style={fieldStyle}
-              >
+              <div style={formGrid}>
 
-                <label
-                  style={labelStyle}
-                >
-                  Ad Title *
-                </label>
+                <div style={fieldStyle}>
 
-                <input
-                  type="text"
-                  name="title"
-                  value={
-                    editForm.title
-                  }
-                  onChange={
-                    handleEditChange
-                  }
-                  style={
-                    inputStyle
-                  }
-                />
+                  <label
+                    style={labelStyle}
+                  >
+                    Ad Title *
+                  </label>
+
+                  <input
+                    type="text"
+                    name="title"
+                    value={
+                      editForm.title
+                    }
+                    onChange={
+                      handleEditChange
+                    }
+                    style={inputStyle}
+                  />
+
+                </div>
+
+                <div style={fieldStyle}>
+
+                  <label
+                    style={labelStyle}
+                  >
+                    Advertiser Name *
+                  </label>
+
+                  <input
+                    type="text"
+                    name="advertiserName"
+                    value={
+                      editForm.advertiserName
+                    }
+                    onChange={
+                      handleEditChange
+                    }
+                    style={inputStyle}
+                  />
+
+                </div>
 
               </div>
 
-
               {/* DESCRIPTION */}
 
-              <div
-                style={fieldStyle}
-              >
+              <div style={fieldStyle}>
 
                 <label
                   style={labelStyle}
@@ -1394,48 +2701,14 @@ function AdminAds() {
                   onChange={
                     handleEditChange
                   }
-                  style={
-                    textareaStyle
-                  }
+                  style={textareaStyle}
                 />
 
               </div>
 
+              {/* TARGET URL */}
 
-              {/* ADVERTISER */}
-
-              <div
-                style={fieldStyle}
-              >
-
-                <label
-                  style={labelStyle}
-                >
-                  Advertiser Name *
-                </label>
-
-                <input
-                  type="text"
-                  name="advertiserName"
-                  value={
-                    editForm.advertiserName
-                  }
-                  onChange={
-                    handleEditChange
-                  }
-                  style={
-                    inputStyle
-                  }
-                />
-
-              </div>
-
-
-              {/* TARGET */}
-
-              <div
-                style={fieldStyle}
-              >
+              <div style={fieldStyle}>
 
                 <label
                   style={labelStyle}
@@ -1452,23 +2725,16 @@ function AdminAds() {
                   onChange={
                     handleEditChange
                   }
-                  style={
-                    inputStyle
-                  }
+                  style={inputStyle}
                 />
 
               </div>
 
-
               {/* TYPE + ORDER */}
 
-              <div
-                style={formGrid}
-              >
+              <div style={formGrid}>
 
-                <div
-                  style={fieldStyle}
-                >
+                <div style={fieldStyle}>
 
                   <label
                     style={labelStyle}
@@ -1484,9 +2750,7 @@ function AdminAds() {
                     onChange={
                       handleEditChange
                     }
-                    style={
-                      inputStyle
-                    }
+                    style={inputStyle}
                   >
 
                     <option value="BANNER">
@@ -1505,10 +2769,7 @@ function AdminAds() {
 
                 </div>
 
-
-                <div
-                  style={fieldStyle}
-                >
+                <div style={fieldStyle}>
 
                   <label
                     style={labelStyle}
@@ -1526,67 +2787,128 @@ function AdminAds() {
                     onChange={
                       handleEditChange
                     }
-                    style={
-                      inputStyle
-                    }
+                    style={inputStyle}
                   />
 
                 </div>
 
               </div>
 
+              {/* ACTIVE */}
 
-              {/* BANNER EDIT */}
+              <div
+                style={{
+                  marginBottom: "20px",
+                }}
+              >
 
-              {editForm.adType ===
-                "BANNER" && (
-
-                <div
-                  style={
-                    settingsBox
-                  }
+                <label
+                  style={checkboxLabel}
                 >
 
-                  <h3
-                    style={
-                      settingsTitle
-                    }
-                  >
-                    Banner Settings
-                  </h3>
-
-                  <label
-                    style={
-                      labelStyle
-                    }
-                  >
-                    Banner Image URL
-                  </label>
-
                   <input
-                    type="text"
-                    name="imageUrl"
-                    value={
-                      editForm.imageUrl
+                    type="checkbox"
+                    name="active"
+                    checked={
+                      editForm.active
                     }
                     onChange={
                       handleEditChange
                     }
-                    style={
-                      inputStyle
-                    }
                   />
+
+                  <span>
+                    Advertisement Active
+                  </span>
+
+                </label>
+
+              </div>
+
+              {/* PLACEMENTS */}
+
+              <div
+                style={placementBox}
+              >
+
+                <h3
+                  style={settingsTitle}
+                >
+                  Ad Placement
+                </h3>
+
+                <div
+                  style={placementGrid}
+                >
+
+                  {placementOptions.map(
+                    (option) => (
+                      <label
+                        key={
+                          option.value
+                        }
+                        style={
+                          placementOption
+                        }
+                      >
+
+                        <input
+                          type="checkbox"
+                          checked={
+                            editForm.placements.includes(
+                              option.value
+                            )
+                          }
+                          onChange={() =>
+                            handleEditPlacementChange(
+                              option.value
+                            )
+                          }
+                        />
+
+                        <span>
+                          {option.label}
+                        </span>
+
+                      </label>
+                    )
+                  )}
 
                 </div>
 
-              )}
+              </div>
 
+              {/* BANNER EDIT */}
 
+{editForm.adType === "BANNER" && (
+  <div style={settingsBox}>
+
+    <h3 style={settingsTitle}>
+      Banner Settings
+    </h3>
+
+    <label style={labelStyle}>
+      Upload New Banner Image
+    </label>
+
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) =>
+        setEditForm({
+          ...editForm,
+          bannerFile: e.target.files[0],
+        })
+      }
+      style={inputStyle}
+    />
+
+  </div>
+)}
               {/* IMAGE EDIT */}
 
               {editForm.adType ===
                 "IMAGE" && (
-
                 <div
                   style={
                     imageSettingsStyle
@@ -1598,42 +2920,32 @@ function AdminAds() {
                       settingsTitle
                     }
                   >
-                    Image Advertisement
-                    Settings
+                    Image Advertisement Settings
                   </h3>
+                  
+                  <label style={labelStyle}>
+  Upload New Image
+</label>
 
-                  <label
-                    style={
-                      labelStyle
-                    }
-                  >
-                    Image URL *
-                  </label>
-
-                  <input
-                    type="text"
-                    name="imageUrl"
-                    value={
-                      editForm.imageUrl
-                    }
-                    onChange={
-                      handleEditChange
-                    }
-                    style={
-                      inputStyle
-                    }
-                  />
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    setEditForm({
+      ...editForm,
+      imageFile: e.target.files[0],
+    })
+  }
+  style={inputStyle}
+/>
 
                 </div>
-
               )}
-
 
               {/* VIDEO EDIT */}
 
               {editForm.adType ===
                 "VIDEO" && (
-
                 <div
                   style={
                     videoSettingsStyle
@@ -1645,31 +2957,24 @@ function AdminAds() {
                       settingsTitle
                     }
                   >
-                    Video Settings
+                    Video Advertisement Settings
                   </h3>
 
-                  <label
-                    style={
-                      labelStyle
-                    }
-                  >
-                    Video URL *
-                  </label>
+                  <label style={labelStyle}>
+  Upload New Video
+</label>
 
-                  <input
-                    type="text"
-                    name="videoUrl"
-                    value={
-                      editForm.videoUrl
-                    }
-                    onChange={
-                      handleEditChange
-                    }
-                    style={
-                      inputStyle
-                    }
-                  />
-
+<input
+  type="file"
+  accept="video/*"
+  onChange={(e) =>
+    setEditForm({
+      ...editForm,
+      videoFile: e.target.files[0],
+    })
+  }
+  style={inputStyle}
+/>
                   <label
                     style={
                       checkboxLabel
@@ -1688,25 +2993,18 @@ function AdminAds() {
                     />
 
                     <span>
-                      Allow user to skip
-                      video
+                      Allow user to skip video
                     </span>
 
                   </label>
 
-
                   {editForm.skippable && (
-
                     <div
-                      style={
-                        fieldStyle
-                      }
+                      style={fieldStyle}
                     >
 
                       <label
-                        style={
-                          labelStyle
-                        }
+                        style={labelStyle}
                       >
                         Skip After Seconds
                       </label>
@@ -1721,52 +3019,25 @@ function AdminAds() {
                         onChange={
                           handleEditChange
                         }
-                        style={
-                          inputStyle
-                        }
+                        style={inputStyle}
                       />
 
                     </div>
-
                   )}
 
                 </div>
-
               )}
 
-
-              {/* ACTIVE */}
-
-              <label
-                style={
-                  checkboxLabel
-                }
-              >
-
-                <input
-                  type="checkbox"
-                  name="active"
-                  checked={
-                    editForm.active
-                  }
-                  onChange={
-                    handleEditChange
-                  }
-                />
-
-                <span>
-                  Advertisement is Active
-                </span>
-
-              </label>
-
-
-              {/* BUTTONS */}
+              {/* MODAL BUTTONS */}
 
               <div
-                style={
-                  modalActions
-                }
+                style={{
+                  display: "flex",
+                  justifyContent:
+                    "flex-end",
+                  gap: "10px",
+                  marginTop: "20px",
+                }}
               >
 
                 <button
@@ -1775,34 +3046,34 @@ function AdminAds() {
                     closeEditForm
                   }
                   style={{
-                    ...actionButton,
+                    border: "none",
                     backgroundColor:
                       "#6b7280",
+                    color: "#ffffff",
+                    padding:
+                      "12px 20px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "600",
                   }}
                 >
                   Cancel
                 </button>
 
-
                 <button
                   type="submit"
-                  disabled={
-                    loading
-                  }
+                  disabled={loading}
                   style={{
                     ...primaryButton,
-                    marginTop: 0,
                     opacity:
                       loading
                         ? 0.6
                         : 1,
                   }}
                 >
-
                   {loading
                     ? "Updating..."
                     : "Update Advertisement"}
-
                 </button>
 
               </div>
@@ -1812,394 +3083,10 @@ function AdminAds() {
           </div>
 
         </div>
-
       )}
 
     </div>
   );
 }
-
-
-// =====================================================
-// STYLES
-// =====================================================
-
-const pageStyle = {
-  minHeight: "100vh",
-  padding: "30px",
-  backgroundColor: "#f4f6f9",
-  boxSizing: "border-box",
-};
-
-const headerStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: "20px",
-  flexWrap: "wrap",
-};
-
-const pageTitle = {
-  margin: 0,
-  fontSize: "28px",
-  color: "#1f2937",
-};
-
-const pageSubtitle = {
-  margin: "6px 0 0",
-  color: "#6b7280",
-  fontSize: "14px",
-};
-
-const totalBadge = {
-  backgroundColor: "#2563eb",
-  color: "#ffffff",
-  padding: "10px 18px",
-  borderRadius: "20px",
-  fontWeight: "600",
-};
-
-const cardStyle = {
-  backgroundColor: "#ffffff",
-  marginTop: "25px",
-  padding: "25px",
-  borderRadius: "14px",
-  boxShadow:
-    "0 3px 15px rgba(0,0,0,0.08)",
-};
-
-const sectionTitle = {
-  margin: "0 0 20px",
-  color: "#1f2937",
-  fontSize: "21px",
-};
-
-const formGrid = {
-  display: "grid",
-  gridTemplateColumns:
-    "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: "18px",
-};
-
-const fieldStyle = {
-  marginBottom: "15px",
-};
-
-const labelStyle = {
-  display: "block",
-  marginBottom: "7px",
-  fontSize: "14px",
-  fontWeight: "600",
-  color: "#374151",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "12px 13px",
-  border:
-    "1px solid #d1d5db",
-  borderRadius: "8px",
-  fontSize: "14px",
-  boxSizing: "border-box",
-  outline: "none",
-};
-
-const textareaStyle = {
-  ...inputStyle,
-  minHeight: "100px",
-  resize: "vertical",
-};
-
-const helpText = {
-  display: "block",
-  marginTop: "5px",
-  color: "#6b7280",
-  fontSize: "12px",
-};
-
-const settingsBox = {
-  marginTop: "10px",
-  padding: "18px",
-  borderRadius: "10px",
-  backgroundColor: "#f8fafc",
-  border:
-    "1px solid #e5e7eb",
-};
-
-const imageSettingsStyle = {
-  ...settingsBox,
-  backgroundColor: "#f0fdf4",
-  border:
-    "1px solid #bbf7d0",
-};
-
-const videoSettingsStyle = {
-  ...settingsBox,
-  backgroundColor: "#eff6ff",
-  border:
-    "1px solid #bfdbfe",
-};
-
-const settingsTitle = {
-  margin: "0 0 15px",
-  fontSize: "17px",
-  color: "#1f2937",
-};
-
-const checkboxLabel = {
-  display: "flex",
-  alignItems: "center",
-  gap: "9px",
-  marginTop: "15px",
-  fontSize: "14px",
-  color: "#374151",
-};
-
-const primaryButton = {
-  marginTop: "20px",
-  padding: "12px 22px",
-  border: "none",
-  borderRadius: "8px",
-  backgroundColor: "#2563eb",
-  color: "#ffffff",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-};
-
-const existingSection = {
-  marginTop: "35px",
-};
-
-const existingHeader = {
-  marginBottom: "18px",
-};
-
-const adCardStyle = {
-  backgroundColor: "#ffffff",
-  padding: "22px",
-  marginBottom: "18px",
-  borderRadius: "14px",
-  boxShadow:
-    "0 3px 12px rgba(0,0,0,0.07)",
-  border:
-    "1px solid #e5e7eb",
-};
-
-const adTopRow = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const orderBadge = {
-  display: "inline-block",
-  padding: "5px 10px",
-  marginRight: "8px",
-  borderRadius: "15px",
-  backgroundColor: "#dbeafe",
-  color: "#1d4ed8",
-  fontSize: "12px",
-  fontWeight: "600",
-};
-
-const videoBadge = {
-  display: "inline-block",
-  padding: "5px 10px",
-  marginRight: "8px",
-  borderRadius: "15px",
-  backgroundColor: "#ede9fe",
-  color: "#6d28d9",
-  fontSize: "12px",
-  fontWeight: "600",
-};
-
-const bannerBadge = {
-  display: "inline-block",
-  padding: "5px 10px",
-  marginRight: "8px",
-  borderRadius: "15px",
-  backgroundColor: "#fef3c7",
-  color: "#92400e",
-  fontSize: "12px",
-  fontWeight: "600",
-};
-
-const imageBadge = {
-  display: "inline-block",
-  padding: "5px 10px",
-  marginRight: "8px",
-  borderRadius: "15px",
-  backgroundColor: "#dcfce7",
-  color: "#166534",
-  fontSize: "12px",
-  fontWeight: "600",
-};
-
-const activeBadge = {
-  display: "inline-block",
-  padding: "5px 10px",
-  borderRadius: "15px",
-  backgroundColor: "#dcfce7",
-  color: "#166534",
-  fontSize: "12px",
-  fontWeight: "600",
-};
-
-const inactiveBadge = {
-  display: "inline-block",
-  padding: "5px 10px",
-  borderRadius: "15px",
-  backgroundColor: "#fee2e2",
-  color: "#991b1b",
-  fontSize: "12px",
-  fontWeight: "600",
-};
-
-const adTitle = {
-  margin: "18px 0 8px",
-  color: "#111827",
-  fontSize: "19px",
-};
-
-const descriptionStyle = {
-  color: "#6b7280",
-  fontSize: "14px",
-  lineHeight: "1.5",
-};
-
-const detailsGrid = {
-  display: "grid",
-  gridTemplateColumns:
-    "repeat(auto-fit, minmax(140px, 1fr))",
-  gap: "12px",
-  marginTop: "18px",
-};
-
-const videoInfoBox = {
-  marginTop: "18px",
-  padding: "14px",
-  backgroundColor: "#f5f3ff",
-  borderRadius: "8px",
-  color: "#374151",
-  fontSize: "14px",
-  lineHeight: "1.8",
-};
-
-const imageInfoBox = {
-  marginTop: "18px",
-  padding: "14px",
-  backgroundColor: "#f0fdf4",
-  borderRadius: "8px",
-  color: "#374151",
-  fontSize: "14px",
-  lineHeight: "1.8",
-};
-
-const imagePreviewWrapper = {
-  width: "100%",
-  maxHeight: "220px",
-  overflow: "hidden",
-  borderRadius: "8px",
-  backgroundColor: "#ffffff",
-  marginBottom: "10px",
-};
-
-const imagePreview = {
-  width: "100%",
-  maxHeight: "220px",
-  objectFit: "contain",
-  display: "block",
-};
-
-const urlText = {
-  marginTop: "12px",
-  fontSize: "13px",
-  color: "#6b7280",
-  wordBreak: "break-all",
-};
-
-const actionsStyle = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: "10px",
-  marginTop: "20px",
-};
-
-const actionButton = {
-  padding: "9px 15px",
-  border: "none",
-  borderRadius: "7px",
-  color: "#ffffff",
-  fontSize: "13px",
-  fontWeight: "600",
-  cursor: "pointer",
-};
-
-const emptyBox = {
-  padding: "35px",
-  textAlign: "center",
-  backgroundColor: "#ffffff",
-  borderRadius: "12px",
-  color: "#6b7280",
-};
-
-const modalOverlay = {
-  position: "fixed",
-  inset: 0,
-  backgroundColor:
-    "rgba(0,0,0,0.65)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  padding: "20px",
-  zIndex: 99999,
-  boxSizing: "border-box",
-};
-
-const modalStyle = {
-  width: "100%",
-  maxWidth: "700px",
-  maxHeight: "92vh",
-  overflowY: "auto",
-  backgroundColor: "#ffffff",
-  borderRadius: "15px",
-  padding: "25px",
-  boxSizing: "border-box",
-  boxShadow:
-    "0 10px 40px rgba(0,0,0,0.3)",
-};
-
-const modalHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  marginBottom: "20px",
-};
-
-const modalTitle = {
-  margin: 0,
-  color: "#111827",
-  fontSize: "22px",
-};
-
-const closeIconButton = {
-  width: "36px",
-  height: "36px",
-  border: "none",
-  borderRadius: "50%",
-  backgroundColor: "#f3f4f6",
-  color: "#374151",
-  fontSize: "25px",
-  lineHeight: "30px",
-  cursor: "pointer",
-};
-
-const modalActions = {
-  display: "flex",
-  justifyContent: "flex-end",
-  gap: "10px",
-  marginTop: "25px",
-};
 
 export default AdminAds;

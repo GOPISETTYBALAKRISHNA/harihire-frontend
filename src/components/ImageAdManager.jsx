@@ -12,6 +12,30 @@ function ImageAdManager({
 
   const adShownRef = useRef(false);
   const previousTriggerRef = useRef(false);
+  
+  
+  useEffect(() => {
+    const style = document.createElement("style");
+  
+    style.innerHTML = `
+      @keyframes fadeInScale {
+        from {
+          opacity: 0;
+          transform: scale(0.92);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    `;
+  
+    document.head.appendChild(style);
+  
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
 
   // =====================================================
@@ -19,6 +43,19 @@ function ImageAdManager({
   // =====================================================
 
   const loadImageAd = async () => {
+    const IMAGE_AD_INTERVAL = 7 * 60 * 1000; // 7 minutes
+
+const lastShownTime =
+  localStorage.getItem("image_ad_last_shown");
+
+if (lastShownTime) {
+  const diff =
+    Date.now() - Number(lastShownTime);
+
+  if (diff < IMAGE_AD_INTERVAL) {
+    return;
+  }
+}
 
     if (!isLoggedIn) {
       return;
@@ -90,7 +127,12 @@ function ImageAdManager({
 
       setAd(selectedAd);
       setShowAd(true);
-
+      
+      localStorage.setItem(
+        "image_ad_last_shown",
+        Date.now().toString()
+      );
+      
       adShownRef.current = true;
 
 
@@ -354,7 +396,8 @@ const overlayStyle = {
   inset: 0,
   width: "100%",
   height: "100%",
-  backgroundColor: "rgba(0,0,0,0.75)",
+  background: "rgba(15,23,42,0.82)",
+  backdropFilter: "blur(8px)",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -363,96 +406,109 @@ const overlayStyle = {
   zIndex: 99998
 };
 
-
 const adContainerStyle = {
   position: "relative",
   width: "100%",
-  maxWidth: "750px",
-  maxHeight: "90vh",
+  maxWidth: "820px",
   overflow: "hidden",
-  backgroundColor: "#ffffff",
-  borderRadius: "14px",
-  boxShadow: "0 10px 40px rgba(0,0,0,0.5)"
+  borderRadius: "24px",
+  background:
+    "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
+  boxShadow:
+    "0 25px 60px rgba(0,0,0,0.35)",
+  border: "1px solid rgba(255,255,255,0.3)",
+  animation: "fadeInScale 0.35s ease"
 };
-
 
 const closeButtonStyle = {
   position: "absolute",
-  top: "12px",
-  right: "12px",
-  zIndex: 10,
-  width: "40px",
-  height: "40px",
+  top: "14px",
+  right: "14px",
+  zIndex: 20,
+  width: "42px",
+  height: "42px",
   border: "none",
   borderRadius: "50%",
-  backgroundColor: "rgba(0,0,0,0.7)",
-  color: "#ffffff",
-  fontSize: "22px",
-  fontWeight: "bold",
-  cursor: "pointer"
+  background: "rgba(255,255,255,0.95)",
+  color: "#111827",
+  fontSize: "20px",
+  fontWeight: "700",
+  cursor: "pointer",
+  boxShadow: "0 4px 15px rgba(0,0,0,0.15)"
 };
-
 
 const adLabelStyle = {
   position: "absolute",
-  top: "15px",
-  left: "15px",
-  zIndex: 5,
-  padding: "5px 10px",
-  borderRadius: "5px",
-  backgroundColor: "rgba(0,0,0,0.65)",
-  color: "#ffffff",
-  fontSize: "12px"
+  top: "16px",
+  left: "16px",
+  zIndex: 10,
+  padding: "8px 14px",
+  borderRadius: "999px",
+  background:
+    "linear-gradient(135deg,#2563eb,#7c3aed)",
+  color: "#fff",
+  fontSize: "12px",
+  fontWeight: "700",
+  letterSpacing: "0.5px",
+  textTransform: "uppercase"
 };
-
 
 const imageStyle = {
   display: "block",
   width: "100%",
-  maxHeight: "70vh",
-  objectFit: "contain",
-  backgroundColor: "#000000",
-  cursor: "pointer"
+  maxHeight: "65vh",
+  objectFit: "cover",
+  cursor: "pointer",
+  transition: "all 0.3s ease"
 };
 
 
 const contentStyle = {
-  padding: "18px",
+  padding: "28px",
   textAlign: "center"
 };
 
 
 const titleStyle = {
-  margin: "0 0 8px",
-  color: "#111827"
+  margin: "0 0 12px",
+  color: "#0f172a",
+  fontSize: "28px",
+  fontWeight: "700",
+  lineHeight: "1.3"
 };
 
 
 const descriptionStyle = {
-  margin: "5px 0 10px",
-  color: "#6b7280",
-  lineHeight: "1.5"
+  margin: "0 auto 20px",
+  color: "#64748b",
+  lineHeight: "1.7",
+  fontSize: "15px",
+  maxWidth: "650px"
 };
 
 
 const visitButtonStyle = {
-  marginTop: "8px",
-  padding: "9px 18px",
+  padding: "12px 28px",
   border: "none",
-  borderRadius: "6px",
-  backgroundColor: "#1976d2",
+  borderRadius: "12px",
+  background:
+    "linear-gradient(135deg,#2563eb,#7c3aed)",
   color: "#ffffff",
   cursor: "pointer",
-  fontWeight: "600"
+  fontWeight: "700",
+  fontSize: "15px",
+  boxShadow:
+    "0 10px 25px rgba(37,99,235,0.35)"
 };
 
 
 const sponsoredStyle = {
   display: "block",
-  marginTop: "10px",
-  color: "#999999",
-  fontSize: "12px"
+  marginTop: "16px",
+  color: "#94a3b8",
+  fontSize: "12px",
+  fontWeight: "600",
+  letterSpacing: "0.5px"
 };
-
 
 export default ImageAdManager;

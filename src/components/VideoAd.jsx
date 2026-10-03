@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const BASE_URL = "https://harihire-production.up.railway.app";
-
+const BASE_URL = "http://localhost:8085";
 const PENDING_AD_KEY = "harihire_pending_video_ad";
 
 function VideoAd({ ad, onClose }) {
