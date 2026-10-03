@@ -93,12 +93,11 @@ function Companies() {
   
               {company.logo ? (
   
-                <img
-                  src={`http://localhost:8085${company.logo}`}
-                  alt={company.companyName}
-                  className="company-logo"
-                />
-  
+  <img
+  src={`https://harihire-backend.onrender.com${company.logo}`}
+  alt={company.companyName}
+  className="company-logo"
+/>
               ) : (
   
                 <div className="company-no-logo">
