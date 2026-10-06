@@ -137,7 +137,9 @@ function ImageAdManager({
     // If target_pages contains actual routes,
     // use them as an additional page restriction.
     const routeTargetPages = targetPages.filter(
-      (page) => page.startsWith("/")
+      (page) =>
+        typeof page === "string" &&
+        page.startsWith("/")
     );
 
     if (routeTargetPages.length > 0) {
