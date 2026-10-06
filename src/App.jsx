@@ -163,10 +163,10 @@ function AppContent() {
 
       {isLoggedIn && !isAdminLoggedIn && (
         <ImageAdManager
-          isLoggedIn={isLoggedIn}
-          isAdminLoggedIn={isAdminLoggedIn}
-          currentPath={location.pathname}
-        />
+        isLoggedIn={isLoggedIn}
+        isAdminLoggedIn={isAdminLoggedIn}
+        currentPath={location.pathname}
+      />
       )}
 
       {/* =================================================
