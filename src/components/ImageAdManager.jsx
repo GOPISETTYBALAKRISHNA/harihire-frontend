@@ -165,34 +165,44 @@ function ImageAdManager({
       RESUME_BUILDER: "/resume-builder",
       HELP: "/help",
     };
-    
     const routeTargetPages = targetPages
-      .map((page) => {
-        if (typeof page !== "string") {
-          return null;
-        }
-    
-        const trimmedPage = page.trim();
-    
-        if (trimmedPage.startsWith("/")) {
-          return trimmedPage;
-        }
-    
-        return pageTargetMap[trimmedPage.toUpperCase()] || null;
-      })
-      .filter(Boolean);
-    
-    if (routeTargetPages.length > 0) {
-      const routeMatched = routeTargetPages.some(
+    .map((page) => {
+      if (typeof page !== "string") {
+        return null;
+      }
+  
+      const trimmedPage = page.trim();
+  
+      if (trimmedPage.startsWith("/")) {
+        return trimmedPage;
+      }
+  
+      return pageTargetMap[
+        trimmedPage.toUpperCase()
+      ] || null;
+    })
+    .filter(Boolean);
+  
+  if (routeTargetPages.length > 0) {
+  
+    const safeCurrentPath =
+      typeof currentPath === "string"
+        ? currentPath
+        : "";
+  
+    const routeMatched =
+      routeTargetPages.some(
         (page) =>
-          currentPath === page ||
-          currentPath.startsWith(`${page}/`)
+          safeCurrentPath === page ||
+          safeCurrentPath.startsWith(
+            `${page}/`
+          )
       );
-    
-      if (!routeMatched) return false;
+  
+    if (!routeMatched) {
+      return false;
     }
-    
-
+  }
     // ---------------------------------------------------
     // PLACEMENTS
     // ---------------------------------------------------
