@@ -379,13 +379,23 @@ function AdminAds() {
     }
 
     // IMAGE / BANNER
-    if (
-      form.adType === "BANNER" &&
-      !form.bannerFile
-    ) {
-      alert("Please select Banner Image.");
-      return;
-    }
+    // IMAGE
+if (
+  form.adType === "IMAGE" &&
+  !form.imageFile
+) {
+  alert("Please upload an image.");
+  return;
+}
+
+// BANNER
+if (
+  form.adType === "BANNER" &&
+  !form.bannerFile
+) {
+  alert("Please upload a banner image.");
+  return;
+}
     // DISPLAY ORDER
     if (Number(form.displayOrder) <= 0) {
       alert(
@@ -493,54 +503,49 @@ if (
     uploadResponse.data;
 }
 
-      const data = {
-        title: form.title.trim(),
+const data = {
+  title: form.title.trim(),
 
-        description:
-          form.description.trim(),
+  description: form.description.trim(),
 
-          imageUrl:
-          form.adType === "BANNER"
-            ? uploadedBannerUrl
-            : form.imageUrl.trim(),
-        targetUrl:
-          form.targetUrl.trim(),
+  imageUrl:
+    form.adType === "IMAGE"
+      ? uploadedImageUrl
+      : form.adType === "BANNER"
+      ? uploadedBannerUrl
+      : "",
 
-        advertiserName:
-          form.advertiserName.trim(),
+  targetUrl: form.targetUrl.trim(),
 
-        adType:
-          form.adType,
-          
-        videoUrl:
-          form.adType === "VIDEO"
-            ? uploadedVideoUrl
-            : "",
+  advertiserName: form.advertiserName.trim(),
 
-        skippable:
-          form.adType === "VIDEO"
-            ? form.skippable
-            : false,
+  adType: form.adType,
 
-        skipAfterSeconds:
-          form.adType === "VIDEO"
-            ? Number(form.skipAfterSeconds)
-            : 10,
+  videoUrl:
+    form.adType === "VIDEO"
+      ? uploadedVideoUrl
+      : "",
 
-        displayOrder:
-          Number(form.displayOrder),
+  skippable:
+    form.adType === "VIDEO"
+      ? form.skippable
+      : false,
 
-        placements:
-          form.placements.join(","),
+  skipAfterSeconds:
+    form.adType === "VIDEO"
+      ? Number(form.skipAfterSeconds)
+      : 10,
 
-        targetPages:
-          form.targetPages.join(","),
+  displayOrder: Number(form.displayOrder),
 
-        active: true,
-      };
+  placements: form.placements.join(","),
 
-      await api.post("/ads", data);
+  targetPages: form.targetPages.join(","),
 
+  active: true,
+};
+
+await api.post("/ads", data);
       alert(
         "Advertisement created successfully."
       );
@@ -939,26 +944,29 @@ if (
     }
 
     // IMAGE / BANNER
-    if (
-      (editForm.adType === "BANNER" ||
-        editForm.adType === "IMAGE") &&
-      !editForm.imageUrl.trim()
-    ) {
-      alert(
-        editForm.adType === "IMAGE"
-          ? "Please enter Image URL."
-          : "Please enter Banner Image URL."
-      );
-      return;
-    }
-    if (
-      editForm.adType === "IMAGE" &&
-      !editForm.imageUrl &&
-      !editForm.imageFile
-    ) {
-      alert("Please select Image.");
-      return;
-    }
+    // IMAGE
+// Existing image can be kept.
+// New image upload is optional.
+if (
+  editForm.adType === "IMAGE" &&
+  !editForm.imageUrl &&
+  !editForm.imageFile
+) {
+  alert("Please upload an image.");
+  return;
+}
+
+// BANNER
+// Existing banner can be kept.
+// New banner upload is optional.
+if (
+  editForm.adType === "BANNER" &&
+  !editForm.imageUrl &&
+  !editForm.bannerFile
+) {
+  alert("Please upload a banner image.");
+  return;
+}
     // DISPLAY ORDER
     if (
       Number(editForm.displayOrder) <= 0
@@ -2906,41 +2914,59 @@ if (
   </div>
 )}
               {/* IMAGE EDIT */}
+{editForm.adType === "IMAGE" && (
+  <div style={imageSettingsStyle}>
 
-              {editForm.adType ===
-                "IMAGE" && (
-                <div
-                  style={
-                    imageSettingsStyle
-                  }
-                >
+    <h3 style={settingsTitle}>
+      Image Advertisement Settings
+    </h3>
 
-                  <h3
-                    style={
-                      settingsTitle
-                    }
-                  >
-                    Image Advertisement Settings
-                  </h3>
-                  
-                  <label style={labelStyle}>
-  Upload New Image
-</label>
+    {/* EXISTING IMAGE */}
 
-<input
-  type="file"
-  accept="image/*"
-  onChange={(e) =>
-    setEditForm({
-      ...editForm,
-      imageFile: e.target.files[0],
-    })
-  }
-  style={inputStyle}
-/>
+    {editForm.imageUrl && (
+      <div style={imageInfoBox}>
 
-                </div>
-              )}
+        <div style={labelStyle}>
+          Current Image
+        </div>
+
+        <div style={imagePreviewWrapper}>
+          <img
+            src={editForm.imageUrl}
+            alt={
+              editForm.title ||
+              "Current Advertisement"
+            }
+            style={imagePreview}
+            onError={(e) => {
+              e.currentTarget.style.display =
+                "none";
+            }}
+          />
+        </div>
+
+        <div style={urlText}>
+          {editForm.imageUrl}
+        </div>
+
+      </div>
+    )}
+
+    {/* NEW IMAGE */}
+
+    <label style={labelStyle}>
+      Upload New Image
+    </label>
+
+
+
+    <small style={helpText}>
+      Leave empty to keep the current image.
+      Upload a new image only if you want to replace it.
+    </small>
+
+  </div>
+)}
 
               {/* VIDEO EDIT */}
 

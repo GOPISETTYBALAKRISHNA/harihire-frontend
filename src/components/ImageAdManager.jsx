@@ -151,23 +151,47 @@ function ImageAdManager({
 
     // If target_pages contains actual routes,
     // use them as an additional page restriction.
-    const routeTargetPages = targetPages.filter(
-      (page) =>
-        typeof page === "string" &&
-        page.startsWith("/")
-    );
-
+    const pageTargetMap = {
+      HOME: "/",
+      JOBS: "/jobs",
+      JOB_DETAILS: "/job",
+      DASHBOARD: "/dashboard",
+      COMPANIES: "/companies",
+      CATEGORY_JOBS: "/jobs",
+      MY_APPLICATIONS: "/my-applications",
+      SAVED_JOBS: "/saved-jobs",
+      NOTIFICATIONS: "/notifications",
+      PROFILE: "/profile",
+      RESUME_BUILDER: "/resume-builder",
+      HELP: "/help",
+    };
+    
+    const routeTargetPages = targetPages
+      .map((page) => {
+        if (typeof page !== "string") {
+          return null;
+        }
+    
+        const trimmedPage = page.trim();
+    
+        if (trimmedPage.startsWith("/")) {
+          return trimmedPage;
+        }
+    
+        return pageTargetMap[trimmedPage.toUpperCase()] || null;
+      })
+      .filter(Boolean);
+    
     if (routeTargetPages.length > 0) {
       const routeMatched = routeTargetPages.some(
         (page) =>
           currentPath === page ||
           currentPath.startsWith(`${page}/`)
       );
-
-      if (!routeMatched) {
-        return false;
-      }
+    
+      if (!routeMatched) return false;
     }
+    
 
     // ---------------------------------------------------
     // PLACEMENTS
