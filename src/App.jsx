@@ -127,25 +127,7 @@ function AppContent() {
 
   }, []);
 
-  // ===================================================
-  // IMAGE AD PAGES
-  // ===================================================
-
-  const imageAdPages = [
-    "/jobs"
-  ];
-
-  // ===================================================
-  // IMAGE AD CONDITION
-  // ===================================================
-
-  const shouldShowImageAd =
-    isLoggedIn &&
-    !isAdminLoggedIn &&
-    (
-      imageAdPages.includes(location.pathname) ||
-      location.pathname.startsWith("/job/")
-    );
+  
 
   // ===================================================
   // RETURN
@@ -183,7 +165,7 @@ function AppContent() {
         <ImageAdManager
           isLoggedIn={isLoggedIn}
           isAdminLoggedIn={isAdminLoggedIn}
-          trigger={shouldShowImageAd}
+          currentPath={location.pathname}
         />
       )}
 

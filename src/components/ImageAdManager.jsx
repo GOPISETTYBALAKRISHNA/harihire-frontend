@@ -1,276 +1,531 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../axiosConfig";
 
+const FIRST_AD_DELAY = 1 * 60 * 1000;      // 1 minute
+const NEXT_AD_DELAY = 12 * 60 * 1000;      // 12 minutes
+
+const NEXT_AD_TIME_KEY = "harihire_image_ad_next_time";
+const SESSION_TOKEN_KEY = "harihire_image_ad_session_token";
+
 function ImageAdManager({
   isLoggedIn,
   isAdminLoggedIn,
-  trigger
+  currentPath
 }) {
   const [ad, setAd] = useState(null);
   const [showAd, setShowAd] = useState(false);
   const [loadingAd, setLoadingAd] = useState(false);
+  const [nextAdTime, setNextAdTime] = useState(null);
+  const [adReady, setAdReady] = useState(false);
 
-  const adShownRef = useRef(false);
-  const previousTriggerRef = useRef(false);
-  
-  
+  const attemptedThisCycleRef = useRef(false);
+
+  // =====================================================
+  // CHECK CURRENT PAGE PLACEMENT
+  // =====================================================
+
+  const getCurrentPlacements = (pathname) => {
+    const placements = [];
+
+    // HOME
+    if (pathname === "/") {
+      placements.push(
+        "HOME_TOP",
+        "HOME_MIDDLE"
+      );
+    }
+
+    // JOBS LIST
+    if (
+      pathname === "/jobs" ||
+      pathname.startsWith("/jobs/")
+    ) {
+      placements.push("JOBS_LIST");
+    }
+
+    // JOB DETAILS
+    if (
+      pathname.startsWith("/job/")
+    ) {
+      placements.push(
+        "JOB_DETAILS",
+        "JOB_DETAILS_SIDEBAR"
+      );
+    }
+
+    // OTHER USER PAGES
+    if (pathname === "/dashboard") {
+      placements.push("DASHBOARD");
+    }
+
+    if (pathname === "/profile") {
+      placements.push("PROFILE");
+    }
+
+    if (pathname === "/saved-jobs") {
+      placements.push("SAVED_JOBS");
+    }
+
+    if (pathname === "/my-applications") {
+      placements.push("MY_APPLICATIONS");
+    }
+
+    if (pathname === "/notifications") {
+      placements.push("NOTIFICATIONS");
+    }
+
+    if (pathname === "/messages") {
+      placements.push("MESSAGES");
+    }
+
+    if (pathname === "/chat") {
+      placements.push("CHAT");
+    }
+
+    if (pathname === "/companies") {
+      placements.push("COMPANIES");
+    }
+
+    if (pathname === "/resume-builder") {
+      placements.push("RESUME_BUILDER");
+    }
+
+    if (pathname === "/professional-resume") {
+      placements.push("PROFESSIONAL_RESUME");
+    }
+
+    if (pathname === "/simple-resume") {
+      placements.push("SIMPLE_RESUME");
+    }
+
+    if (pathname === "/resume-preview") {
+      placements.push("RESUME_PREVIEW");
+    }
+
+    return placements;
+  };
+
+  // =====================================================
+  // CHECK IF AD IS ALLOWED ON CURRENT PAGE
+  // =====================================================
+
+  const isAdAllowedOnCurrentPage = (selectedAd) => {
+    if (!selectedAd) {
+      return false;
+    }
+
+    // ---------------------------------------------------
+    // TARGET PAGES
+    // ---------------------------------------------------
+
+    const rawTargetPages = selectedAd.targetPages;
+
+    let targetPages = [];
+
+    if (Array.isArray(rawTargetPages)) {
+      targetPages = rawTargetPages;
+    } else if (
+      typeof rawTargetPages === "string" &&
+      rawTargetPages.trim() !== ""
+    ) {
+      targetPages = rawTargetPages
+        .split(",")
+        .map((page) => page.trim())
+        .filter(Boolean);
+    }
+
+    // If target_pages contains actual routes,
+    // use them as an additional page restriction.
+    const routeTargetPages = targetPages.filter(
+      (page) => page.startsWith("/")
+    );
+
+    if (routeTargetPages.length > 0) {
+      const routeMatched = routeTargetPages.some(
+        (page) =>
+          currentPath === page ||
+          currentPath.startsWith(`${page}/`)
+      );
+
+      if (!routeMatched) {
+        return false;
+      }
+    }
+
+    // ---------------------------------------------------
+    // PLACEMENTS
+    // ---------------------------------------------------
+
+    const rawPlacements = selectedAd.placements;
+
+    let selectedPlacements = [];
+
+    if (Array.isArray(rawPlacements)) {
+      selectedPlacements = rawPlacements;
+    } else if (
+      typeof rawPlacements === "string" &&
+      rawPlacements.trim() !== ""
+    ) {
+      selectedPlacements = rawPlacements
+        .split(",")
+        .map((item) => item.trim().toUpperCase())
+        .filter(Boolean);
+    }
+
+    // No placement means don't show.
+    if (selectedPlacements.length === 0) {
+      return false;
+    }
+
+    const currentPlacements =
+      getCurrentPlacements(currentPath);
+
+    return selectedPlacements.some(
+      (placement) =>
+        currentPlacements.includes(placement)
+    );
+  };
+
+  // =====================================================
+  // INITIALIZE TIMER
+  // =====================================================
+
   useEffect(() => {
-    const style = document.createElement("style");
-  
-    style.innerHTML = `
-      @keyframes fadeInScale {
-        from {
-          opacity: 0;
-          transform: scale(0.92);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-    `;
-  
-    document.head.appendChild(style);
-  
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-
-  // =====================================================
-  // LOAD IMAGE AD
-  // =====================================================
-
-  const loadImageAd = async () => {
-    const IMAGE_AD_INTERVAL = 7 * 60 * 1000; // 7 minutes
-
-const lastShownTime =
-  localStorage.getItem("image_ad_last_shown");
-
-if (lastShownTime) {
-  const diff =
-    Date.now() - Number(lastShownTime);
-
-  if (diff < IMAGE_AD_INTERVAL) {
-    return;
-  }
-}
-
-    if (!isLoggedIn) {
+    if (!isLoggedIn || isAdminLoggedIn) {
       return;
     }
 
-    if (isAdminLoggedIn) {
+    const currentToken =
+      localStorage.getItem("token");
+
+    if (!currentToken) {
       return;
     }
 
-    if (loadingAd) {
-      return;
-    }
+    const storedSessionToken =
+      localStorage.getItem(SESSION_TOKEN_KEY);
 
-    if (adShownRef.current) {
-      return;
-    }
+    // ---------------------------------------------------
+    // NEW LOGIN SESSION
+    // ---------------------------------------------------
 
-    try {
+    if (
+      !storedSessionToken ||
+      storedSessionToken !== currentToken
+    ) {
+      const firstAdTime =
+        Date.now() + FIRST_AD_DELAY;
 
-      setLoadingAd(true);
-
-      const response = await api.get("/ads/active");
-
-      const ads = Array.isArray(response.data)
-        ? response.data
-        : [];
-
-
-      // =================================================
-      // ONLY IMAGE ADS
-      // =================================================
-
-      const imageAds = ads.filter(
-        (item) =>
-          item.adType &&
-          item.adType.toUpperCase() === "IMAGE" &&
-          item.imageUrl &&
-          item.imageUrl.trim() !== ""
-      );
-
-
-      if (imageAds.length === 0) {
-        return;
-      }
-
-
-      // =================================================
-      // DISPLAY ORDER
-      // =================================================
-
-      const sortedAds = [...imageAds].sort(
-        (a, b) =>
-          Number(a.displayOrder || 999999) -
-          Number(b.displayOrder || 999999)
-      );
-
-
-      const selectedAd = sortedAds[0];
-
-
-      if (!selectedAd) {
-        return;
-      }
-
-
-      // =================================================
-      // SET AD
-      // =================================================
-
-      setAd(selectedAd);
-      setShowAd(true);
-      
       localStorage.setItem(
-        "image_ad_last_shown",
-        Date.now().toString()
+        SESSION_TOKEN_KEY,
+        currentToken
       );
-      
-      adShownRef.current = true;
 
+      localStorage.setItem(
+        NEXT_AD_TIME_KEY,
+        firstAdTime.toString()
+      );
 
-      // =================================================
-      // RECORD IMPRESSION
-      // =================================================
+      setNextAdTime(firstAdTime);
+      setAdReady(false);
+      setShowAd(false);
+      setAd(null);
 
+      attemptedThisCycleRef.current = false;
+
+      return;
+    }
+
+    // ---------------------------------------------------
+    // RESTORE EXISTING TIMER
+    // ---------------------------------------------------
+
+    const storedNextTime =
+      Number(
+        localStorage.getItem(
+          NEXT_AD_TIME_KEY
+        )
+      );
+
+    if (
+      storedNextTime &&
+      !Number.isNaN(storedNextTime)
+    ) {
+      setNextAdTime(storedNextTime);
+
+      if (Date.now() >= storedNextTime) {
+        setAdReady(true);
+      } else {
+        setAdReady(false);
+      }
+    } else {
+      const firstAdTime =
+        Date.now() + FIRST_AD_DELAY;
+
+      localStorage.setItem(
+        NEXT_AD_TIME_KEY,
+        firstAdTime.toString()
+      );
+
+      setNextAdTime(firstAdTime);
+      setAdReady(false);
+
+      attemptedThisCycleRef.current = false;
+    }
+  }, [
+    isLoggedIn,
+    isAdminLoggedIn
+  ]);
+
+  // =====================================================
+  // GLOBAL TIMER
+  // =====================================================
+
+  useEffect(() => {
+    if (
+      !isLoggedIn ||
+      isAdminLoggedIn ||
+      !nextAdTime
+    ) {
+      return;
+    }
+
+    const checkTimer = () => {
+      const remaining =
+        nextAdTime - Date.now();
+
+      if (remaining <= 0) {
+        setAdReady(true);
+        return;
+      }
+
+      setAdReady(false);
+    };
+
+    checkTimer();
+
+    const interval = setInterval(
+      checkTimer,
+      1000
+    );
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [
+    nextAdTime,
+    isLoggedIn,
+    isAdminLoggedIn
+  ]);
+
+  // =====================================================
+  // RESET ATTEMPT FOR NEW TIMER CYCLE
+  // =====================================================
+
+  useEffect(() => {
+    attemptedThisCycleRef.current = false;
+  }, [nextAdTime]);
+
+  // =====================================================
+  // LOAD IMAGE AD WHEN TIMER IS READY
+  // =====================================================
+
+  useEffect(() => {
+    if (
+      !isLoggedIn ||
+      isAdminLoggedIn ||
+      !adReady ||
+      showAd ||
+      loadingAd
+    ) {
+      return;
+    }
+
+    if (
+      attemptedThisCycleRef.current
+    ) {
+      return;
+    }
+
+    // Current page must have a valid placement.
+    // If not, timer stays ready and waits for
+    // the user to navigate to an eligible page.
+    const loadImageAd = async () => {
       try {
+        setLoadingAd(true);
+        attemptedThisCycleRef.current = true;
 
-        await api.put(
-          `/ads/${selectedAd.id}/impression`
+        const response =
+          await api.get("/ads/active");
+
+        const ads =
+          Array.isArray(response.data)
+            ? response.data
+            : [];
+
+        // ------------------------------------------------
+        // IMAGE ADS ONLY
+        // ------------------------------------------------
+
+        const imageAds = ads.filter(
+          (item) =>
+            item &&
+            item.adType &&
+            item.adType.toUpperCase() === "IMAGE" &&
+            item.imageUrl &&
+            item.imageUrl.trim() !== ""
         );
 
-      } catch (error) {
+        // ------------------------------------------------
+        // PAGE PLACEMENT FILTER
+        // ------------------------------------------------
 
+        const eligibleAds =
+          imageAds.filter(
+            (item) =>
+              isAdAllowedOnCurrentPage(item)
+          );
+
+        if (
+          eligibleAds.length === 0
+        ) {
+          // Keep timer READY.
+          // When user moves to another eligible page,
+          // this cycle can try again.
+          attemptedThisCycleRef.current = false;
+          return;
+        }
+
+        // ------------------------------------------------
+        // DISPLAY ORDER
+        // ------------------------------------------------
+
+        const sortedAds =
+          [...eligibleAds].sort(
+            (a, b) =>
+              Number(
+                a.displayOrder || 999999
+              ) -
+              Number(
+                b.displayOrder || 999999
+              )
+          );
+
+        const selectedAd =
+          sortedAds[0];
+
+        if (!selectedAd) {
+          return;
+        }
+
+        // ------------------------------------------------
+        // SHOW AD
+        // ------------------------------------------------
+
+        setAd(selectedAd);
+        setShowAd(true);
+
+        // ------------------------------------------------
+        // IMPRESSION
+        // ------------------------------------------------
+
+        try {
+          await api.put(
+            `/ads/${selectedAd.id}/impression`
+          );
+        } catch (error) {
+          console.error(
+            "Image Ad Impression Error:",
+            error
+          );
+        }
+
+      } catch (error) {
         console.error(
-          "Image Ad Impression Error:",
+          "Image Ad Load Error:",
           error
         );
 
+        attemptedThisCycleRef.current = false;
+      } finally {
+        setLoadingAd(false);
       }
+    };
 
-    } catch (error) {
+    loadImageAd();
 
-      console.error(
-        "Image Ad Load Error:",
-        error
-      );
-
-    } finally {
-
-      setLoadingAd(false);
-
-    }
-
-  };
-
-
-  // =====================================================
-  // TRIGGER IMAGE AD
-  // =====================================================
-
-  useEffect(() => {
-
-    if (!trigger) {
-
-      previousTriggerRef.current = false;
-
-      return;
-    }
-
-
-    /*
-      Trigger became active.
-
-      We reset the ad only when the trigger
-      changes from false -> true.
-    */
-
-    if (!previousTriggerRef.current) {
-
-      adShownRef.current = false;
-
-      setAd(null);
-      setShowAd(false);
-
-      loadImageAd();
-
-    }
-
-
-    previousTriggerRef.current = true;
-
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trigger]);
-
+  }, [
+    adReady,
+    currentPath,
+    isLoggedIn,
+    isAdminLoggedIn,
+    showAd,
+    loadingAd
+  ]);
 
   // =====================================================
   // CLOSE IMAGE AD
   // =====================================================
 
   const closeImageAd = async () => {
-
     if (!ad) {
       return;
     }
 
-
-    // ===================================================
-    // RECORD CLICK
-    // ===================================================
+    // ---------------------------------------------------
+    // CLICK TRACKING
+    // ---------------------------------------------------
 
     try {
-
       await api.put(
         `/ads/${ad.id}/click`
       );
-
     } catch (error) {
-
       console.error(
         "Image Ad Click Error:",
         error
       );
-
     }
 
-
-    // ===================================================
-    // OPEN TARGET URL
-    // ===================================================
+    // ---------------------------------------------------
+    // OPEN TARGET WEBSITE
+    // ---------------------------------------------------
 
     if (
       ad.targetUrl &&
       ad.targetUrl.trim() !== ""
     ) {
-
       window.open(
         ad.targetUrl.trim(),
         "_blank",
         "noopener,noreferrer"
       );
-
     }
 
-
-    // ===================================================
+    // ---------------------------------------------------
     // CLOSE POPUP
-    // ===================================================
+    // ---------------------------------------------------
 
     setShowAd(false);
     setAd(null);
 
-    adShownRef.current = false;
+    // ---------------------------------------------------
+    // START 12-MINUTE TIMER
+    // ---------------------------------------------------
 
+    const nextTime =
+      Date.now() + NEXT_AD_DELAY;
+
+    localStorage.setItem(
+      NEXT_AD_TIME_KEY,
+      nextTime.toString()
+    );
+
+    setNextAdTime(nextTime);
+    setAdReady(false);
+
+    attemptedThisCycleRef.current = false;
   };
-
 
   // =====================================================
   // DO NOT RENDER
@@ -288,23 +543,18 @@ if (lastShownTime) {
     return null;
   }
 
-
   // =====================================================
   // RENDER
   // =====================================================
 
   return (
-
     <div style={overlayStyle}>
 
       <div style={adContainerStyle}>
 
-
-        {/* =================================================
-            CLOSE BUTTON
-        ================================================= */}
-
+        {/* CLOSE */}
         <button
+          type="button"
           onClick={closeImageAd}
           style={closeButtonStyle}
           aria-label="Close advertisement"
@@ -312,80 +562,63 @@ if (lastShownTime) {
           ✕
         </button>
 
-
-        {/* =================================================
-            AD LABEL
-        ================================================= */}
-
+        {/* LABEL */}
         <div style={adLabelStyle}>
           Advertisement
         </div>
 
-
-        {/* =================================================
-            IMAGE
-        ================================================= */}
-
+        {/* IMAGE */}
         <img
           src={ad.imageUrl}
-          alt={ad.title || "Advertisement"}
+          alt={
+            ad.title ||
+            "Advertisement"
+          }
           onClick={closeImageAd}
           style={imageStyle}
         />
 
-
-        {/* =================================================
-            CONTENT
-        ================================================= */}
-
+        {/* CONTENT */}
         <div style={contentStyle}>
 
-          {ad.title && (
+          {ad.advertiserName && (
+            <div style={advertiserStyle}>
+              {ad.advertiserName}
+            </div>
+          )}
 
+          {ad.title && (
             <h2 style={titleStyle}>
               {ad.title}
             </h2>
-
           )}
 
-
           {ad.description && (
-
             <p style={descriptionStyle}>
               {ad.description}
             </p>
-
           )}
-
-
-          {/* TARGET URL BUTTON */}
 
           {ad.targetUrl &&
             ad.targetUrl.trim() !== "" && (
-
               <button
+                type="button"
                 onClick={closeImageAd}
                 style={visitButtonStyle}
               >
                 Visit Website
               </button>
-
             )}
-
 
           <small style={sponsoredStyle}>
             Sponsored
           </small>
 
         </div>
-
       </div>
-
     </div>
-
   );
 }
-
 
 // =====================================================
 // STYLES
@@ -416,8 +649,8 @@ const adContainerStyle = {
     "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
   boxShadow:
     "0 25px 60px rgba(0,0,0,0.35)",
-  border: "1px solid rgba(255,255,255,0.3)",
-  animation: "fadeInScale 0.35s ease"
+  border:
+    "1px solid rgba(255,255,255,0.3)"
 };
 
 const closeButtonStyle = {
@@ -434,7 +667,8 @@ const closeButtonStyle = {
   fontSize: "20px",
   fontWeight: "700",
   cursor: "pointer",
-  boxShadow: "0 4px 15px rgba(0,0,0,0.15)"
+  boxShadow:
+    "0 4px 15px rgba(0,0,0,0.15)"
 };
 
 const adLabelStyle = {
@@ -458,16 +692,20 @@ const imageStyle = {
   width: "100%",
   maxHeight: "65vh",
   objectFit: "cover",
-  cursor: "pointer",
-  transition: "all 0.3s ease"
+  cursor: "pointer"
 };
-
 
 const contentStyle = {
   padding: "28px",
   textAlign: "center"
 };
 
+const advertiserStyle = {
+  marginBottom: "8px",
+  color: "#64748b",
+  fontSize: "14px",
+  fontWeight: "600"
+};
 
 const titleStyle = {
   margin: "0 0 12px",
@@ -477,7 +715,6 @@ const titleStyle = {
   lineHeight: "1.3"
 };
 
-
 const descriptionStyle = {
   margin: "0 auto 20px",
   color: "#64748b",
@@ -485,7 +722,6 @@ const descriptionStyle = {
   fontSize: "15px",
   maxWidth: "650px"
 };
-
 
 const visitButtonStyle = {
   padding: "12px 28px",
@@ -500,7 +736,6 @@ const visitButtonStyle = {
   boxShadow:
     "0 10px 25px rgba(37,99,235,0.35)"
 };
-
 
 const sponsoredStyle = {
   display: "block",
