@@ -26,85 +26,100 @@ function ImageAdManager({
 
   const getCurrentPlacements = (pathname) => {
     const placements = [];
-
+  
+    const path =
+      typeof pathname === "string"
+        ? pathname
+        : "";
+  
     // HOME
-    if (pathname === "/") {
+    if (path === "/") {
       placements.push(
         "HOME_TOP",
         "HOME_MIDDLE"
       );
     }
-
+  
     // JOBS LIST
     if (
-      pathname === "/jobs" ||
-      pathname.startsWith("/jobs/")
+      path === "/jobs" ||
+      path.startsWith("/jobs/")
     ) {
       placements.push("JOBS_LIST");
     }
-
+  
     // JOB DETAILS
     if (
-      pathname.startsWith("/job/")
+      path.startsWith("/job/")
     ) {
       placements.push(
         "JOB_DETAILS",
         "JOB_DETAILS_SIDEBAR"
       );
     }
-
-    // OTHER USER PAGES
-    if (pathname === "/dashboard") {
+  
+    // DASHBOARD
+    if (path === "/dashboard") {
       placements.push("DASHBOARD");
     }
-
-    if (pathname === "/profile") {
+  
+    // PROFILE
+    if (path === "/profile") {
       placements.push("PROFILE");
     }
-
-    if (pathname === "/saved-jobs") {
+  
+    // SAVED JOBS
+    if (path === "/saved-jobs") {
       placements.push("SAVED_JOBS");
     }
-
-    if (pathname === "/my-applications") {
+  
+    // MY APPLICATIONS
+    if (path === "/my-applications") {
       placements.push("MY_APPLICATIONS");
     }
-
-    if (pathname === "/notifications") {
+  
+    // NOTIFICATIONS
+    if (path === "/notifications") {
       placements.push("NOTIFICATIONS");
     }
-
-    if (pathname === "/messages") {
+  
+    // MESSAGES
+    if (path === "/messages") {
       placements.push("MESSAGES");
     }
-
-    if (pathname === "/chat") {
+  
+    // CHAT
+    if (path === "/chat") {
       placements.push("CHAT");
     }
-
-    if (pathname === "/companies") {
+  
+    // COMPANIES
+    if (path === "/companies") {
       placements.push("COMPANIES");
     }
-
-    if (pathname === "/resume-builder") {
+  
+    // RESUME BUILDER
+    if (path === "/resume-builder") {
       placements.push("RESUME_BUILDER");
     }
-
-    if (pathname === "/professional-resume") {
+  
+    // PROFESSIONAL RESUME
+    if (path === "/professional-resume") {
       placements.push("PROFESSIONAL_RESUME");
     }
-
-    if (pathname === "/simple-resume") {
+  
+    // SIMPLE RESUME
+    if (path === "/simple-resume") {
       placements.push("SIMPLE_RESUME");
     }
-
-    if (pathname === "/resume-preview") {
+  
+    // RESUME PREVIEW
+    if (path === "/resume-preview") {
       placements.push("RESUME_PREVIEW");
     }
-
+  
     return placements;
   };
-
   // =====================================================
   // CHECK IF AD IS ALLOWED ON CURRENT PAGE
   // =====================================================
