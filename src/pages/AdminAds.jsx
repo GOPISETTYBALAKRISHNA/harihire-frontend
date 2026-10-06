@@ -2957,6 +2957,19 @@ if (
     <label style={labelStyle}>
       Upload New Image
     </label>
+    <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.target.files[0];
+
+    setEditForm((previous) => ({
+      ...previous,
+      imageFile: file || null,
+    }));
+  }}
+  style={inputStyle}
+/>
 
 
 
