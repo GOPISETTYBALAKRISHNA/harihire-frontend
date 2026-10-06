@@ -620,7 +620,11 @@ function ImageAdManager({
 
         {/* IMAGE */}
         <img
-          src={ad.imageUrl}
+          src={
+            `ad.imageUrl?.startsWith("http")`
+              ? ad.imageUrl
+              : `https://harihire-backend.onrender.com${ad.imageUrl || ""}`
+          }
           alt={
             ad.title ||
             "Advertisement"
