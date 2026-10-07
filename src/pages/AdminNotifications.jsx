@@ -563,11 +563,7 @@ function AdminNotifications() {
             {notifications.map(
               (notification, index) => (
                 <div
-                  key={
-                    `notification.id ??`
-                    `notification-${index}`
-                  }
-                  style={notificationStyle}
+                key={notification.id || `notification-${index}`}                  style={notificationStyle}
                 >
                   {/* TOP */}
 
