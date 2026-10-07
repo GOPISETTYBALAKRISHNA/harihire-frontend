@@ -414,39 +414,37 @@ careerObjective:
   
   };
   const handleDownload = async () => {
-  try {
-    const response = await api.get(
-      `/resume/download/${resume.userId}`,
-      {
-        responseType: "blob",
-      }
-    );
+    try {
+      const response = await api.get(
+        `/resume/download/${resume.userId}`,
+        {
+          responseType: "blob",
+        }
+      );
 
-    const blob = new Blob([response.data], {
-      type: "application/pdf",
-    });
+      const blob = new Blob([response.data], {
+        type: "application/pdf",
+      });
 
-    const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${(
-      resume.fullName || "Resume"
-    ).replace(/\s+/g, "_")}_Resume.pdf`;
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${(
+        resume.fullName || "Resume"
+      ).replace(/\s+/g, "_")}_Resume.pdf`;
 
-    document.body.appendChild(link);
-    link.click();
+      document.body.appendChild(link);
+      link.click();
 
-    link.remove();
-    window.URL.revokeObjectURL(url);
+      link.remove();
+      window.URL.revokeObjectURL(url);
 
-  } catch (error) {
-    console.error("PDF DOWNLOAD ERROR:", error);
+    } catch (error) {
+      console.error("PDF DOWNLOAD ERROR:", error);
 
-    alert("Failed to download PDF");
-  }
-};
-  
+      alert("Failed to download PDF");
+    }
   };
 
 
@@ -860,7 +858,7 @@ careerObjective:
     </div>
 
   );
-
+}
 
 
 export default SimpleResume;
