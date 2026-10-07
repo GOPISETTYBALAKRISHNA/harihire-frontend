@@ -422,26 +422,18 @@ careerObjective:
         }
       );
   
-      const blob = new Blob([response.data], {
-        type: "application/pdf",
-      });
+      const blob = new Blob(
+        [response.data],
+        {
+          type: "application/pdf",
+        }
+      );
   
-      const url = window.URL.createObjectURL(blob);
+      const url =
+        window.URL.createObjectURL(blob);
   
-      const link = document.createElement("a");
-  
-      link.href = url;
-  
-      link.download =
-        `${resume.fullName || "Resume"}_Resume.pdf`;
-  
-      document.body.appendChild(link);
-  
-      link.click();
-  
-      link.remove();
-  
-      window.URL.revokeObjectURL(url);
+      // Open PDF in browser PDF viewer
+      window.open(url, "_blank");
   
     } catch (error) {
   
@@ -450,27 +442,11 @@ careerObjective:
         error
       );
   
-      let message =
-        "Failed to download PDF";
-  
-      if (error.response) {
-  
-        message =
-          "PDF Download Failed. Status: " +
-          error.response.status;
-  
-      } else if (error.message) {
-  
-        message =
-          "PDF Download Failed. " +
-          error.message;
-  
-      }
-  
-      alert(message);
+      alert(
+        "Unable to open PDF. Please try again."
+      );
     }
   };
-
 
   return (
 
