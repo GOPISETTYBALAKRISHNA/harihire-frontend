@@ -140,8 +140,8 @@ function Applicants() {
   application.resume.toLowerCase().endsWith(".pdf") ? (
 
     <a
-      href={`https://harihire-production.up.railway.app/uploads/${application.resume}`}
-      target="_blank"
+    href={`https://harihire-backend.onrender.com/uploads/${application.resume}`}
+          target="_blank"
       rel="noreferrer"
     >
       📄 View Resume

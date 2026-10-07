@@ -1,6 +1,23 @@
 import { useEffect, useState } from "react";
 import api from "../axiosConfig";
 
+const BACKEND_URL =
+  "https://harihire-backend.onrender.com";
+
+const getFileUrl = (url) => {
+  if (!url) {
+    return "";
+  }
+
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://")
+  ) {
+    return url;
+  }
+
+  return `${BACKEND_URL}${url}`;
+};
 function AdminAds() {
 
   // =====================================================
@@ -2317,9 +2334,9 @@ if (
 
                         {ad.imageUrl ? (
                           <img
-                            src={
-                              ad.imageUrl
-                            }
+                          src={
+                            getFileUrl(ad.imageUrl)
+                          }
                             alt={
                               ad.title ||
                               "Advertisement"
@@ -2376,9 +2393,9 @@ if (
 
                         {ad.imageUrl ? (
                           <img
-                            src={
-                              ad.imageUrl
-                            }
+                          src={
+                            getFileUrl(ad.imageUrl)
+                          }
                             alt={
                               ad.title ||
                               "Banner Advertisement"
@@ -2932,7 +2949,7 @@ if (
 
         <div style={imagePreviewWrapper}>
           <img
-            src={editForm.imageUrl}
+src={getFileUrl(editForm.imageUrl)}
             alt={
               editForm.title ||
               "Current Advertisement"
