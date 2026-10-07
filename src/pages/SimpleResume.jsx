@@ -413,12 +413,39 @@ careerObjective:
     );
   
   };
-  const handleDownload = () => {
-
-    window.open(
-      `${api.defaults.baseURL}/resume/download/${resume.userId}`,
-      "_blank"
+  const handleDownload = async () => {
+  try {
+    const response = await api.get(
+      `/resume/download/${resume.userId}`,
+      {
+        responseType: "blob",
+      }
     );
+
+    const blob = new Blob([response.data], {
+      type: "application/pdf",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${(
+      resume.fullName || "Resume"
+    ).replace(/\s+/g, "_")}_Resume.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("PDF DOWNLOAD ERROR:", error);
+
+    alert("Failed to download PDF");
+  }
+};
   
   };
 
@@ -834,6 +861,6 @@ careerObjective:
 
   );
 
-}
+
 
 export default SimpleResume;
