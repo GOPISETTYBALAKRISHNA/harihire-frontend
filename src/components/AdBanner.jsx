@@ -1,8 +1,20 @@
 import React, { useEffect, useState } from "react";
 import api from "../axiosConfig";
 import "./AdBanner.css";
+const getFileUrl = (url) => {
+  if (!url) return "";
 
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://")
+  ) {
+    return url;
+  }
+
+  return `${api.defaults.baseURL}${url}`;
+};
 function AdBanner() {
+  
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -197,8 +209,8 @@ function AdBanner() {
 
         {ad.imageUrl && (
           <img
-            src={ad.imageUrl}
-            alt={
+          src={getFileUrl(ad.imageUrl)}
+                      alt={
               ad.title ||
               "Advertisement"
             }
