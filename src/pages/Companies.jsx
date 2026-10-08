@@ -94,7 +94,11 @@ function Companies() {
               {company.logo ? (
   
   <img
-  src={`https://harihire-backend.onrender.com${company.logo}`}
+  src={
+    company.logo && company.logo.startsWith("http")
+      ? company.logo
+      : `https://harihire-backend.onrender.com${company.logo}`
+  }
   alt={company.companyName}
   className="company-logo"
 />

@@ -597,8 +597,11 @@ const [isEditing, setIsEditing] = useState(false);
 
               <img
                 className="company-logo"
-                src={`https://harihire-backend.onrender.com${company.logo}`}                alt={company.companyName}
-              />
+                src={
+                  company.logo && company.logo.startsWith("http")
+                    ? company.logo
+                    : `https://harihire-backend.onrender.com${company.logo}`
+                }             />
 
             ) : (
 
