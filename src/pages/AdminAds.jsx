@@ -874,6 +874,9 @@ await api.post("/ads", data);
       imageUrl:
         ad.imageUrl || "",
 
+        imageFile: null,
+        bannerFile: null,
+        videoFile: null,
       targetUrl:
         ad.targetUrl || "",
 
@@ -951,14 +954,17 @@ await api.post("/ads", data);
       return;
     }
 
-    // VIDEO
-    if (
-      editForm.adType === "VIDEO" &&
-      !editForm.videoUrl.trim()
-    ) {
-      alert("Please enter Video URL.");
-      return;
-    }
+    
+// VIDEO
+if (
+  editForm.adType === "VIDEO" &&
+  !editForm.videoUrl.trim() &&
+  !editForm.videoFile
+) {
+  alert("Please upload a video.");
+  return;
+}
+
 
     // IMAGE / BANNER
     // IMAGE
@@ -2000,8 +2006,9 @@ if (
               </h3>
 
               <label style={labelStyle}>
-                Video URL *
-              </label>
+            Upload Video *
+            </label>
+
 
               <input
   type="file"
