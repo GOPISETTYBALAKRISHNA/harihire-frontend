@@ -52,10 +52,8 @@ function SavedJobs() {
       console.log(error);
     }
   };
-
   const handleApply = async (job) => {
-    const loggedIn =
-      localStorage.getItem("isLoggedIn");
+    const loggedIn = localStorage.getItem("isLoggedIn");
 
     if (!loggedIn) {
       alert("Please Login First");
@@ -63,9 +61,31 @@ function SavedJobs() {
       return;
     }
 
-    const user = JSON.parse(
-      localStorage.getItem("user") || "null"
-    );
+    // External jobs: open original application website
+    if (
+      `job.applyType?.toUpperCase()` === "EXTERNAL" ||
+      `job.sourceType?.toUpperCase()` === "ADZUNA" ||
+      `job.sourceType?.toUpperCase()` === "OFFICIAL"
+    ) {
+      const externalUrl = job.applyLink || job.sourceUrl;
+
+      if (externalUrl) {
+        window.open(externalUrl, "_blank", "noopener,noreferrer");
+      } else {
+        alert("External application link is not available.");
+      }
+
+      return;
+    }
+
+    // Recruiter jobs: submit application to HariHire
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (!user) {
+      alert("Please login again.");
+      navigate("/login");
+      return;
+    }
 
     try {
       const check = await api.get(
@@ -73,32 +93,30 @@ function SavedJobs() {
       );
 
       if (check.data) {
-        alert("You already applied for this job");
+        alert("You already applied for this job.");
         return;
       }
 
-      await api.post(
-        "/applications/apply",
-        {
-          jobId: job.id,
-          userId: user.id,
-          applicantName: user.fullName,
-          email: user.email,
-          phone: user.phone,
-          resume: user.resume,
-          status: "Applied",
-        }
-      );
+      await api.post("/applications/apply", {
+        jobId: job.id,
+        userId: user.id,
+        applicantName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        resume: user.resume,
+        status: "Applied",
+      });
 
       alert("Application Submitted Successfully");
-
       loadSavedJobs();
     } catch (error) {
-      console.log(error);
-      alert("Application Failed");
+      console.error("Application error:", error);
+      alert(
+        `error.response?.data?.message` ||
+        "Application Failed. Please try again."
+      );
     }
   };
-
   const removeSavedJob = async (jobId) => {
     const user = JSON.parse(
       localStorage.getItem("user") || "null"
@@ -106,7 +124,7 @@ function SavedJobs() {
 
     try {
       await api.delete(
-        `/saved-jobs/${user.id}/${jobId}`
+        `/saved-jobs/${`user.id`}/${jobId}`
       );
 
       alert("Job Removed Successfully");
