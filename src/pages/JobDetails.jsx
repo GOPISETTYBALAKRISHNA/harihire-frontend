@@ -451,60 +451,58 @@ const salaryValue = Number(`job?.salary`);
 const validThrough = `job?.applicationDeadline`
   ? String(job.applicationDeadline).slice(0, 10)
   : undefined;
-
-const jobPostingSchema = job
+  const jobPostingSchema = job
   ? {
       "@context": "https://schema.org",
       "@type": "JobPosting",
-      title: job.jobTitle || undefined,
-      description: job.description || undefined,
-      ...(postedDate ? { datePosted: postedDate } : {}),
-      ...(validThrough ? { validThrough: validThrough } : {}),
-      ...(employmentType ? { employmentType: employmentType } : {}),
+      title: job.jobTitle || job.title || "Job Opening",
+      description: String(job.description || "")
+        .replace(/<[^>]*>/g, " ")
+        .trim(),
+      datePosted: job.postedDate
+        ? String(job.postedDate).slice(0, 10)
+        : undefined,
+
+      employmentType: (() => {
+        const type = String(job.jobType || "")
+          .toUpperCase()
+          .replace(/[\s-]+/g, "_");
+
+        const allowedTypes = [
+          "FULL_TIME",
+          "PART_TIME",
+          "CONTRACTOR",
+          "TEMPORARY",
+          "INTERN",
+          "VOLUNTEER",
+          "PER_DIEM",
+          "OTHER"
+        ];
+
+        return allowedTypes.includes(type) ? type : undefined;
+      })(),
+
       hiringOrganization: {
         "@type": "Organization",
-        name: job.companyName || undefined,
-        ...(job.companyWebsite
-          ? { sameAs: job.companyWebsite }
-          : {}),
-        ...(job.companyLogo
-          ? { logo: job.companyLogo }
-          : {}),
+        name: job.companyName || job.company || "Employer"
       },
-      ...(job.location
+
+      jobLocation: job.location
         ? {
-            jobLocation: {
-              "@type": "Place",
-              address: {
-                "@type": "PostalAddress",
-                addressLocality: job.location,
-                addressCountry: "IN",
-              },
-            },
+            "@type": "Place",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: String(job.location),
+              addressCountry: "IN"
+            }
           }
-        : {}),
-      ...(job.salary != null &&
-      Number.isFinite(salaryValue) &&
-      salaryValue > 0
-        ? {
-            baseSalary: {
-              "@type": "MonetaryAmount",
-              currency: "INR",
-              value: {
-                "@type": "QuantitativeValue",
-                value: salaryValue,
-                unitText: "MONTH",
-              },
-            },
-          }
-        : {}),
-      ...(job.qualification
-        ? { qualifications: job.qualification }
-        : {}),
-      ...(job.experience
-        ? { experienceRequirements: job.experience }
-        : {}),
-      url: canonicalUrl,
+        : undefined,
+
+      validThrough: job.applicationDeadline
+        ? String(job.applicationDeadline).slice(0, 10)
+        : undefined,
+
+      url: `${window.location.origin}/job/${job.id}`
     }
   : null;
 
