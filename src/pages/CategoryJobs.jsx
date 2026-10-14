@@ -1075,8 +1075,6 @@ const totalPages = Math.ceil(
             <article
               key={job.id}
               style={styles.card}
-              itemScope
-              itemType="https://schema.org/JobPosting"
             >
 
               {/* JOB HEADER */}
@@ -1089,7 +1087,6 @@ const totalPages = Math.ceil(
                     style={
                       styles.jobTitle
                     }
-                    itemProp="title"
                   >
                     {job.jobTitle ||
                       "Job Title Not Available"}
@@ -1099,7 +1096,6 @@ const totalPages = Math.ceil(
                     style={
                       styles.company
                     }
-                    itemProp="hiringOrganization"
                   >
                     🏢{" "}
                     {job.companyName ||
@@ -1132,7 +1128,6 @@ const totalPages = Math.ceil(
               <div style={styles.details}>
 
                 <span
-                  itemProp="jobLocation"
                 >
                   📍{" "}
                   {job.location ||
@@ -1174,7 +1169,7 @@ const totalPages = Math.ceil(
                   Job Description
                 </h5>
 
-                <p itemProp="description">
+                <p>
                   {job.description ||
                     "No description available."}
                 </p>

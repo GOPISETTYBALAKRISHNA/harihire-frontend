@@ -405,99 +405,108 @@ ${shareUrl}`;
   const closeShareOptions = () => {
     setShowShareOptions(false);
   };
+// JOB POSTING STRUCTURED DATA
 
-  // =====================================================
-  // JOB POSTING STRUCTURED DATA
-  // =====================================================
+const normalizedJobType = {
+  "full time": "FULL_TIME",
+  "full-time": "FULL_TIME",
+  "fulltime": "FULL_TIME",
+  "part time": "PART_TIME",
+  "part-time": "PART_TIME",
+  "parttime": "PART_TIME",
+  "contract": "CONTRACTOR",
+  "internship": "INTERN",
+  "temporary": "TEMPORARY",
+};
 
-  const jobPostingSchema = job
-    ? {
-        "@context": "https://schema.org",
-        "@type": "JobPosting",
+const rawJobType = String(`job?.jobType` || "")
+  .trim()
+  .toLowerCase();
 
-        title:
-          job.jobTitle ||
-          "Job Opportunity",
+const validEmploymentTypes = [
+  "FULL_TIME",
+  "PART_TIME",
+  "CONTRACTOR",
+  "TEMPORARY",
+  "INTERN",
+  "VOLUNTEER",
+  "PER_DIEM",
+  "OTHER",
+];
 
-        description:
-          job.description ||
-          seoDescription,
+const employmentType =
+  normalizedJobType[rawJobType] ||
+  (validEmploymentTypes.includes(
+    String(`job?.jobType` || "").trim().toUpperCase()
+  )
+    ? String(job.jobType).trim().toUpperCase()
+    : undefined);
 
-        datePosted:
-          job.postedDate ||
-          job.createdAt ||
-          undefined,
+const postedDate = `job?.postedDate`
+  ? String(job.postedDate).slice(0, 10)
+  : undefined;
 
-        employmentType:
-          job.jobType ||
-          undefined,
+const salaryValue = Number(`job?.salary`);
 
-        hiringOrganization: {
-          "@type": "Organization",
+const validThrough = `job?.applicationDeadline`
+  ? String(job.applicationDeadline).slice(0, 10)
+  : undefined;
 
-          name:
-            job.companyName ||
-            "Company",
-
-          sameAs:
-            job.companyWebsite ||
-            undefined,
-
-          logo:
-            job.companyLogo ||
-            undefined,
-        },
-
-        jobLocation: job.location
-          ? {
+const jobPostingSchema = job
+  ? {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      title: job.jobTitle || undefined,
+      description: job.description || undefined,
+      ...(postedDate ? { datePosted: postedDate } : {}),
+      ...(validThrough ? { validThrough: validThrough } : {}),
+      ...(employmentType ? { employmentType: employmentType } : {}),
+      hiringOrganization: {
+        "@type": "Organization",
+        name: job.companyName || undefined,
+        ...(job.companyWebsite
+          ? { sameAs: job.companyWebsite }
+          : {}),
+        ...(job.companyLogo
+          ? { logo: job.companyLogo }
+          : {}),
+      },
+      ...(job.location
+        ? {
+            jobLocation: {
               "@type": "Place",
-
               address: {
-                "@type":
-                  "PostalAddress",
-
-                addressLocality:
-                  job.location,
-
-                addressCountry:
-                  "IN",
+                "@type": "PostalAddress",
+                addressLocality: job.location,
+                addressCountry: "IN",
               },
-            }
-          : undefined,
-
-        baseSalary: job.salary
-          ? {
-              "@type":
-                "MonetaryAmount",
-
+            },
+          }
+        : {}),
+      ...(job.salary != null &&
+      Number.isFinite(salaryValue) &&
+      salaryValue > 0
+        ? {
+            baseSalary: {
+              "@type": "MonetaryAmount",
               currency: "INR",
-
               value: {
-                "@type":
-                  "QuantitativeValue",
-
-                value:
-                  Number(
-                    String(job.salary)
-                      .replace(/[^0-9.]/g, "")
-                  ) || undefined,
-
+                "@type": "QuantitativeValue",
+                value: salaryValue,
                 unitText: "MONTH",
               },
-            }
-          : undefined,
-
-        qualifications:
-          job.qualification ||
-          undefined,
-
-        experienceRequirements:
-          job.experience ||
-          undefined,
-
-        url: canonicalUrl,
-      }
-    : null;
+            },
+          }
+        : {}),
+      ...(job.qualification
+        ? { qualifications: job.qualification }
+        : {}),
+      ...(job.experience
+        ? { experienceRequirements: job.experience }
+        : {}),
+      url: canonicalUrl,
+    }
+  : null;
 
   // =====================================================
   // BREADCRUMB STRUCTURED DATA
