@@ -89,4 +89,9 @@
     .register-title {
       font-size: 24px;
     }
+    .register-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
   }
